@@ -1,0 +1,7 @@
+#!/bin/bash
+
+## prereqs: redis-cli and redis installed via helm with name "counters" and NodePort serviceType
+
+redis-cli -h $(minikube ip) \
+          -p $(kubectl get svc counters-redis -o jsonpath='{.spec.ports[0].nodePort}') \
+          -a $(kubectl get secret --namespace default counters-redis -o jsonpath="{.data.redis-password}" | base64 --decode)
