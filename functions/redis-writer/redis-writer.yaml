@@ -15,3 +15,5 @@ spec:
   env:
   - name: FUNCTION_URI
     value: file:///functions/function.jar?functions.RedisWriter
+  - name: REDIS_PASSWORD
+    value: replace-me
