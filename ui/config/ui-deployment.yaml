@@ -1,0 +1,26 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: ui
+spec:
+  replicas: 1
+  template:
+    metadata:
+      name: ui
+      labels:
+        app: sk8s
+        component: ui
+    spec:
+      containers:
+      - image: jldec/sk8s-ui:latest
+        name: ui
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: REDIS_HOST
+          value: "counters-redis.default.svc.cluster.local"
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: counters-redis
+              key: redis-password
+      serviceAccountName: sk8s-sa

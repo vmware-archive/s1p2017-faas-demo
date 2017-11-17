@@ -1,0 +1,34 @@
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  var socket = io()
+  socket.on('connect', () => { console.log('connect', socket.id) })
+  socket.on('logevent', (evt) => { console.log(evt); })
+  socket.on('echoevent', (evt) => { 
+    el('x').innerHTML = evt.x
+    el('y').innerHTML = evt.y    
+  })
+  socket.on('redisevent', (evt) => { 
+    el('redis-x').innerHTML = evt.x
+    el('redis-y').innerHTML = evt.y    
+  })
+  window.addEventListener('beforeunload', () => {
+    console.log('disconnect', socket.id)
+    socket.disconnect();
+  })
+  function el(id) { return document.getElementById(id); }
+</script>
+
+<div style="text-align:left;"> 
+<div id="mousebox" style="display:inline-block; width:100%; height:100px; background-color:#ffa; border:1px solid #777;"></div>
+<br>x=<span id="x">?</span>
+<br>y=<span id="y">?</span>
+<br>redis x=<span id="redis-x">?</span>
+<br>redis y=<span id="redis-y">?</span>
+</div>
+
+<script>
+  el('mousebox').addEventListener('mousemove', (evt) => {
+    socket.emit('mouseevent', { x:evt.offsetX, y:evt.offsetY })
+  }) 
+</script>        
+</div>
