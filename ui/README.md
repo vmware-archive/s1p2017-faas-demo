@@ -4,15 +4,15 @@ designed for real-time demos
 
 #### To run standalone locally
 ```
+cd ui
 npm install
 node server
 ```
-Then browse to http://localhost:3000
+Point your browser to http://localhost:3000.
+If redis is working the display will update with the mouse position as you move over the yellow box.
 
-The server looks for redis using environment variables (defaults are localhost, 6379, and no auth)   
-REDIS_HOST  
-REDIS_PORT  
-REDIS_PAASWORD  
+The server looks for redis using environment variables `REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD`.
+Defaults are localhost, 6379, and no auth.  
 
 #### To build docker image
 ```
