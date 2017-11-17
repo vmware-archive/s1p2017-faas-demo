@@ -12,8 +12,10 @@ const {
 } = process.env
 
 const redisLib = require("redis")
+const redisOpts = {host:REDIS_HOST, port:REDIS_PORT, auth_pass:REDIS_PASSWORD}
 
-const redisWatch = redisLib.createClient({host:REDIS_HOST, port:REDIS_PORT, auth_pass:REDIS_PASSWORD})
+// redisWatch client is just for watching events on demo keys
+const redisWatch = redisLib.createClient(redisOpts)
 redisWatch.config('SET', 'notify-keyspace-events', 'KEA')
 redisWatch.on('error', (err) => { console.log(`redisWatch error: ${err}`); })
 redisWatch.psubscribe('__keyspace*__:demo*')
@@ -21,7 +23,8 @@ redisWatch.psubscribe('__keyspace*__:demo*')
 // chrome socket.io seems to leak connections 
 redisWatch.setMaxListeners(500)
 
-const redisDB = redisLib.createClient({host:REDIS_HOST, port:REDIS_PORT, auth_pass:REDIS_PASSWORD})
+// redisDB client is used to get/set values of demo keys
+const redisDB = redisLib.createClient(redisOpts)
 redisDB.on('error', (err) => { console.log(`redisDB error: ${err}`); })
 
 const io = require('socket.io')(server)
@@ -50,10 +53,6 @@ io.on('connection', (socket) => {
   }
 })
 
-
-
-// TODO: release event handlers on disconnect?
-
 // use /echo for debugging with request counter middleware
 var reqcnt = 0;
 app.use((req, res, next) => { reqcnt++; next(); })
@@ -69,10 +68,10 @@ app.use('/echo', (req, res) => { res.send(
   cookies: req.cookies }
 )})
 
-// default to static for everything else
+// default to serving static for all other paths
 app.use(express.static('public'))
 
-// have to listen on server (not app) for socket.io to work
+// must listen on server (not app) for socket.io to work
 server.listen(PORT, () => console.log(`UI listening on port ${PORT}`))
 
 
