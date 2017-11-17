@@ -9,11 +9,15 @@ kind: Function
 metadata:
   name: redis-writer
 spec:
-  image: sk8s/redis-writer:1.0.0
   protocol: http
   input: counts
-  env:
-  - name: FUNCTION_URI
-    value: file:///functions/function.jar?functions.RedisWriter
-  - name: REDIS_PASSWORD
-    value: replace-me
+  container:
+    image: sk8s/redis-writer:1.0.0
+    env:
+    - name: FUNCTION_URI
+      value: file:///functions/function.jar?functions.RedisWriter
+    - name: REDIS_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: counters-redis
+          key: redis-password
