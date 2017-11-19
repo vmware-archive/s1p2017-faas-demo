@@ -1,0 +1,31 @@
+apiVersion: extensions.sk8s.io/v1
+kind: Topic
+metadata:
+  name: data
+---
+
+apiVersion: extensions.sk8s.io/v1
+kind: Function
+metadata:
+  name: jdbc-writer
+spec:
+  protocol: http
+  input: data
+  container:
+    image: sk8s/jdbc-writer:1.0.0
+    env:
+    - name: FUNCTION_URI
+      value: file:///functions/function.jar?functions.JdbcWriter
+    - name: SPRING_PROFILES_ACTIVE
+      value: kubernetes
+    - name: SPRING_DATASOURCE_DRIVER_CLASS_NAME
+      value: 'org.mariadb.jdbc.Driver'
+    - name: SPRING_DATASOURCE_URL
+      value: 'jdbc:mysql://data-mysql:3306/mysql'
+    - name: SPRING_DATASOURCE_USERNAME
+      value: root
+    - name: SPRING_DATASOURCE_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: data-mysql
+          key: mysql-root-password
