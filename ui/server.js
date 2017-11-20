@@ -56,10 +56,10 @@ io.on('connection', (socket) => {
 
 app.use('/', bodyParser.text());
 
-// handle event from kafka riff_function_replicas topic via sidecar
+// handle event from kafka function-replicas topic via sidecar
 app.post('/', (req, res) => {
   const event = safeParseJSON(req.body);
-  const retval = "riff_function_replicas event: " + JSON.stringify(event);
+  const retval = "function-replicas event: " + JSON.stringify(event);
   console.log(retval)
   res.type("text/plain")
   res.status(200).send(retval)
