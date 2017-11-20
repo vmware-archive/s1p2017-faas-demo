@@ -5,7 +5,6 @@ import java.util.function.Function;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.jdbc.core.JdbcTemplate;
 
 @SpringBootApplication
 public class FunctionApp {
@@ -15,7 +14,7 @@ public class FunctionApp {
 	}
 
 	@Bean
-	Function<String, String> function(JdbcTemplate jdbcTemplate) {
+	Function<String, String> function() {
 		return new JdbcWriter();
 	}
 }

@@ -9,6 +9,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import static org.junit.Assert.assertEquals;
+
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @DirtiesContext
@@ -22,8 +24,9 @@ public class JdbcWriterTests {
 
 	@Test
 	public void test() {
-		System.out.printf(
-				writer.apply("{\"name\": \"Bob\", \"description\": \"testing\"}"));
+		assertEquals("done", writer.apply("{\"name\": \"Bob\", \"description\": \"testing\"}"));
+		assertEquals(1, (int)jdbcTemplate.queryForObject(
+				"select count(*) from data where name='Bob' and description='testing'", Integer.class));
 	}
 
 }

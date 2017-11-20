@@ -40,7 +40,7 @@ public class JdbcWriter implements Function<String, String> {
 		logger.info("Inserting into data table: [" + name + ", " + description + "]");
 		int count = jdbcTemplate.update(
 				"insert into data (name, description) values(?,?)",
-				new Object[] { name, description });
+				name, description);
 		logger.info("Wrote: " + count + " rows");
 		return "done";
 	}

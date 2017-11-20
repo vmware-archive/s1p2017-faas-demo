@@ -2,14 +2,15 @@ package functions;
 
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
+
 public class JdbcWriterInitTests {
 
 	@Test
 	public void bootstrap() {
 		JdbcWriter writer = new JdbcWriter();
 		writer.init();
-		System.out.printf(
-				writer.apply("{\"name\": \"Bob\", \"description\": \"testing\"}"));
+		assertEquals("done", writer.apply("{\"name\": \"Bob\", \"description\": \"testing\"}"));
 	}
 
 }
