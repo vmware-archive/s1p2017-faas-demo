@@ -15,7 +15,7 @@ public class FunctionApp {
 	}
 
 	@Bean
-	Function function(JdbcTemplate jdbcTemplate) {
+	Function<String, String> function(JdbcTemplate jdbcTemplate) {
 		return new JdbcWriter();
 	}
 }
