@@ -8,7 +8,7 @@ cd ui
 npm install
 node server
 ```
-Point your browser to http://localhost:3000.
+Point your browser to http://localhost:8080.
 If redis is working the display will update with the mouse position as you move over the yellow box.
 
 The server looks for redis using environment variables `REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD`.
@@ -23,6 +23,7 @@ docker build -t jldec/sk8s-ui .
 ```
 kubectl apply -f config
 ```
+This will deploy a pod with the ui server container using the image above as well as the function sidecar.
 
 Open the K8s service in the browser by running:
 ```
