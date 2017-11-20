@@ -14,7 +14,9 @@ public class RedisWriter implements Function<Map<String, Integer>, String> {
 		client.connect();
 		client.auth(System.getenv("REDIS_PASSWORD"));
 		for (Map.Entry<String, Integer> entry : counts.entrySet()) {
-			client.incrBy(entry.getKey().getBytes(), entry.getValue());
+			// TODO: config options for different datatypes and operations
+			//client.incrBy(entry.getKey().getBytes(), entry.getValue());
+			client.set(entry.getKey(), entry.getValue().toString());
 		}
 		client.close();
 		return "done";
