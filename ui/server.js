@@ -1,11 +1,12 @@
 const express = require('express')
 const app = express()
-const server = require('http').Server(app);
+const server = require('http').Server(app)
 const util = require('util')
+const bodyParser = require('body-parser')
 
 // object matching destructuring inspired by https://apex.github.io/up/#getting_started
 const { 
-  PORT = 3000,
+  PORT = 8080,
   REDIS_HOST,
   REDIS_PORT,
   REDIS_PASSWORD
@@ -50,6 +51,26 @@ io.on('connection', (socket) => {
     redisDB.mget('demo:x', 'demo:y', (err, vals) => {
       socket.emit('redisevent', {x:vals[0], y:vals[1]})
     })
+  }
+})
+
+app.use('/', bodyParser.text());
+
+// handle event from kafka riff_function_replicas topic via sidecar
+app.post('/', (req, res) => {
+  const event = safeParseJSON(req.body);
+  const retval = "riff_function_replicas event: " + JSON.stringify(event);
+  console.log(retval)
+  res.type("text/plain")
+  res.status(200).send(retval)
+
+  function safeParseJSON(s) {
+    try {
+      return JSON.parse(s);
+    } catch(err) {
+      console.log('error parsing event JSON: ' + s);
+      return {};
+    }
   }
 })
 
