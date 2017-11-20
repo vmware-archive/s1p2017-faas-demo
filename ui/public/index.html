@@ -1,3 +1,4 @@
+<script src="/js/d3.v4.min.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 <script>
   var socket = io()
@@ -7,10 +8,10 @@
     el('x').innerHTML = evt.x
     el('y').innerHTML = evt.y    
   })
-  socket.on('redisevent', (evt) => { 
-    el('redis-x').innerHTML = evt.x
-    el('redis-y').innerHTML = evt.y    
-  })
+  socket.on('demo:x', (x) => { el('redis-x').innerHTML = x })
+  socket.on('demo:y', (y) => { el('redis-y').innerHTML = y })
+  socket.on('demo:fns', (fns) => { el('redis-scale').innerHTML = JSON.stringify(fns) })
+
   window.addEventListener('beforeunload', () => {
     console.log('disconnect', socket.id)
     socket.disconnect();
@@ -20,10 +21,11 @@
 
 <div style="text-align:left;"> 
 <div id="mousebox" style="display:inline-block; width:100%; height:100px; background-color:#ffa; border:1px solid #777;"></div>
-<br>x=<span id="x">?</span>
-<br>y=<span id="y">?</span>
-<br>redis x=<span id="redis-x">?</span>
-<br>redis y=<span id="redis-y">?</span>
+<br>x = <span id="x">?</span>
+<br>y = <span id="y">?</span>
+<br>redis x = <span id="redis-x">?</span>
+<br>redis y = <span id="redis-y">?</span>
+<br>scale = <span id="redis-scale">?</span>
 </div>
 
 <script>
