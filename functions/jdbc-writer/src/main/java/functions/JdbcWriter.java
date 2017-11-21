@@ -3,6 +3,7 @@ package functions;
 import java.util.function.Function;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
 import com.jsoniter.JsonIterator;
 import com.jsoniter.any.Any;
@@ -22,12 +23,20 @@ public class JdbcWriter implements Function<String, String> {
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 
+	private ConfigurableApplicationContext context;
+
 	@PostConstruct
 	public void init() {
 		if (this.jdbcTemplate == null) {
-			ConfigurableApplicationContext context = new SpringApplication(
-					FunctionApp.class).run();
+			context = new SpringApplication(FunctionApp.class).run();
 			this.jdbcTemplate = context.getBean(JdbcTemplate.class);
+		}
+	}
+
+	@PreDestroy
+	public void close() {
+		if (context != null) {
+			context.close();
 		}
 	}
 
@@ -39,8 +48,7 @@ public class JdbcWriter implements Function<String, String> {
 		String description = values.toString("description");
 		logger.info("Inserting into data table: [" + name + ", " + description + "]");
 		int count = jdbcTemplate.update(
-				"insert into data (name, description) values(?,?)",
-				name, description);
+				"insert into data (name, description) values(?,?)", name, description);
 		logger.info("Wrote: " + count + " rows");
 		return "done";
 	}
