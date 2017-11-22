@@ -15,7 +15,7 @@ spec:
     image: sk8s/jdbc-writer:1.0.0
     env:
     - name: FUNCTION_URI
-      value: file:///functions/function.jar?functions.JdbcWriter
+      value: file:///functions/function.jar?handler=functions.JdbcWriter
     - name: SPRING_PROFILES_ACTIVE
       value: kubernetes
     - name: SPRING_DATASOURCE_DRIVER_CLASS_NAME

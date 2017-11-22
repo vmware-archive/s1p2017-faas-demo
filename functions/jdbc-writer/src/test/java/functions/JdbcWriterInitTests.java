@@ -10,7 +10,9 @@ public class JdbcWriterInitTests {
 	public void bootstrap() {
 		JdbcWriter writer = new JdbcWriter();
 		writer.init();
-		assertEquals("done", writer.apply("{\"name\": \"Bob\", \"description\": \"testing\"}"));
+		assertEquals("done",
+				writer.apply("{\"name\": \"Bob\", \"description\": \"testing\"}"));
+		writer.close();
 	}
 
 }
