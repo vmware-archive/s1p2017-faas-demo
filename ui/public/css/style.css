@@ -1,0 +1,41 @@
+body {
+  font-family: sans-serif;
+  margin: 0;
+}
+
+svg {
+  width: 100%;
+  height: auto;
+  border-bottom: 1px solid #ccc;
+}
+
+.vote-button {
+  cursor: pointer; 
+  stroke-width: 2px;
+  stroke: #fff;
+}
+.vote-button:hover {
+   stroke: #ffc;
+}
+  
+.votes text {
+  cursor: pointer; 
+  font-family: monospace;
+  font-size: 12px;
+  text-anchor: middle;
+  fill: #fff;
+  transition: font-size 500ms;
+}
+
+.votes text:hover, .vote-button:hover + text {
+  font-size:20px;
+}
+
+.functions rect {
+  fill: #bbb;
+}
+
+.functions text {
+  font-size: 20px;
+  fill: #555;
+}

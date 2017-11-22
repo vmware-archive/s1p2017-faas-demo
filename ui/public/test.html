@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<div id="mousebox" style="display:inline-block; width:100%; height:100px; background-color:#ffa; border:1px solid #777;"></div>
+<br>x = <span id="x">?</span>
+<br>y = <span id="y">?</span>
+<br>redis x = <span id="redis-x">?</span>
+<br>redis y = <span id="redis-y">?</span>
+<br>scale = <span id="redis-scale">?</span>
+<br><span id="testfn1-up" style="color:#35b; text-decoration:underline; cursor:pointer;">testfn1 scale up</span>
+<br><span id="testfn1-down" style="color:#35b; text-decoration:underline; cursor:pointer;">testfn1 scale down</span>
+<br><span id="testfn2-up" style="color:#35b; text-decoration:underline; cursor:pointer;">testfn2 scale up</span>
+<br><span id="testfn2-down" style="color:#35b; text-decoration:underline; cursor:pointer;">testfn2 scale down</span>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+var testobj = { "testfn1":0, "testfn2":0 }; // note - object ref is mutable
+
+const socket = io()
+socket.on('connect', () => { console.log('connect', socket.id) })
+socket.on('echoevent', (evt) => { 
+  el('x').innerHTML = evt.x
+  el('y').innerHTML = evt.y    
+})
+socket.on('demo:x', (x) => { el('redis-x').innerHTML = x })
+socket.on('demo:y', (y) => { el('redis-y').innerHTML = y })
+
+socket.on('demo:fns', (fns) => {
+  el('redis-scale').innerHTML = JSON.stringify(fns)
+  testobj = fns; // replace entire state!
+})
+
+on(window, 'beforeunload', () => {
+  console.log('disconnect', socket.id)
+  socket.disconnect()
+})
+
+on(el('testfn1-up'), 'click', (evt) => { testobj.testfn1++; testPost(); })
+on(el('testfn1-down'), 'click', (evt) => { if(testobj.testfn1 > 0) { testobj.testfn1--; } testPost(); })
+on(el('testfn2-up'), 'click', (evt) => { testobj.testfn2++; testPost(); })
+on(el('testfn2-down'), 'click', (evt) => { if(testobj.testfn2 > 0) { testobj.testfn2--; } testPost(); })
+
+function testPost() {
+  fetch('/', { 
+    method: 'POST',
+    body: JSON.stringify(testobj)
+  })
+}
+
+on(el('mousebox'), 'mousemove', (evt) => {
+  socket.emit('mouseevent', { x:evt.offsetX, y:evt.offsetY })
+}) 
+
+function el(id) { return document.getElementById(id); }
+function on(el,evt,fn) { return el.addEventListener(evt, fn); }
+</script>

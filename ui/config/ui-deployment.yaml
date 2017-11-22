@@ -8,11 +8,11 @@ spec:
     metadata:
       name: ui
       labels:
-        app: sk8s
+        app: riff
         component: ui
     spec:
       containers:
-      - image: jldec/sk8s-ui:latest
+      - image: projectriff/riff-demo-ui:latest
         name: ui
         imagePullPolicy: IfNotPresent
         env:
@@ -23,10 +23,10 @@ spec:
             secretKeyRef:
               name: counters-redis
               key: redis-password
-      - image: sk8s/function-sidecar:0.0.1-SNAPSHOT
+      - image: projectriff/function-sidecar:0.0.1-SNAPSHOT
         name: sidecar
         imagePullPolicy: IfNotPresent
         env:
         - name: SPRING_APPLICATION_JSON
           value: '{"spring.cloud.stream.bindings.input.destination":"function-replicas","spring.cloud.stream.bindings.output.destination":"replies","spring.cloud.stream.bindings.input.group":"ui","spring.profiles.active":"http","spring.application.name":"sidecar-ui","spring.cloud.stream.kafka.binder.brokers":"kafka:9092","spring.cloud.stream.kafka.binder.zkNodes":"zookeeper:2181","server.port":"-1"}'
-      serviceAccountName: sk8s-sa
+      serviceAccountName: riff-sa

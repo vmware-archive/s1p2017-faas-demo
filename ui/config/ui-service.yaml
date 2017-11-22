@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: ui
   labels:
-    app: sk8s
+    app: riff
     component: ui
 spec:
   type: NodePort

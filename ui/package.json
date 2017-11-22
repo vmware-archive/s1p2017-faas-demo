@@ -1,10 +1,10 @@
 {
-  "name": "sk8s-ui",
+  "name": "riff-demo-ui",
   "version": "1.0.0",
-  "description": "sk8s UI",
+  "description": "riff demo UI",
   "repository": {
     "type": "git",
-    "url": "git://github.com/jldec/sk8s-ui.git"
+    "url": "git://github.com/projectriff/demo-ui.git"
   },
   "main": "server.js",
   "scripts": {

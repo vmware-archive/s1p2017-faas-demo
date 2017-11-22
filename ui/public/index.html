@@ -1,36 +1,131 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+@import url("/css/style.css");
+</style>
+
+<svg class="votes" viewBox="0 0 400 100"></svg>
+<svg class="functions"></svg>
+<svg class="results"></svg>
+
 <script src="/js/d3.v4.min.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 <script>
-  var socket = io()
-  socket.on('connect', () => { console.log('connect', socket.id) })
-  socket.on('logevent', (evt) => { console.log(evt); })
-  socket.on('echoevent', (evt) => { 
-    el('x').innerHTML = evt.x
-    el('y').innerHTML = evt.y    
-  })
-  socket.on('demo:x', (x) => { el('redis-x').innerHTML = x })
-  socket.on('demo:y', (y) => { el('redis-y').innerHTML = y })
-  socket.on('demo:fns', (fns) => { el('redis-scale').innerHTML = JSON.stringify(fns) })
 
-  window.addEventListener('beforeunload', () => {
-    console.log('disconnect', socket.id)
-    socket.disconnect();
-  })
-  function el(id) { return document.getElementById(id); }
+const voteData = [
+{id:"boot", name:"Boot 2", votes:0, color:"#6db33f" },
+{id:"framework", name:"Framework 5", votes:0, color:"#0e9fda"},
+{id:"reactor", name:"Reactor", votes:0, color:"#ea9999"},
+{id:"riff", name:"riff", votes:0, color:"#f6b26b"}
+];
+
+var functionData = [
+{id:"testfn1", replicas:1},
+{id:"testfn2", replicas:3}
+]
+
+function updateFunctions() {
+  var cnt = functionData.length
+  var dy = 40
+  var gap = 10
+  var height = cnt * (dy + gap)
+  var width = d3.select("body").node().offsetWidth
+
+  var svg = d3.select("svg.functions")
+    .attr("height", height)
+
+  var dx = d3.scaleLinear()
+    .domain([0, 20]) // d3.max(functionData, (d)=>d.replicas)+1])
+    .range([0, width])
+
+  var functions = svg.selectAll("g")
+    .data(functionData, (d) => d.id)
+
+  var newFunctions = functions.enter()
+    .append("g")
+    .attr("transform", (d,i) => "translate(0,"+ (i * (dy + gap)) +")")
+    .attr("class", "replicas")
+
+  newFunctions.append("rect")
+    .attr("height", dy)
+    .attr("class", "replicas")
+    .attr("width", (d) => dx(d.replicas))
+
+  newFunctions.append("text")
+    .text((d,i) => d.id)
+    .attr("class", "replicas")
+    .attr("dx", (d) => dx(d.replicas) + 2)
+    .attr("dy", dy - 2)
+
+  svg.selectAll("g.replicas")
+    .attr("transform", (d,i) => "translate(0,"+ (i * (dy + gap)) +")")
+
+  svg.selectAll("rect.replicas")
+    .attr("width", (d) => dx(d.replicas))
+
+  svg.selectAll("text.replicas")
+    .attr("dx", (d) => dx(d.replicas) + 2)
+    .attr("dy", dy - 2)
+}
+
+updateFunctions()
+
+function updateVotes() {
+  var voteButtons = d3.select("svg.votes").selectAll("g").data(voteData,(d)=>d.id)
+
+  var newVoteButtons = voteButtons.enter()
+    .append("g")
+    .attr("transform", (d,i) => "translate("+ (i*100+50) +",50)")
+    .on('click', (d,i) => {
+      socket.emit('vote', d.id)
+    })
+
+  newVoteButtons.append("circle")
+    .attr("class","vote-button")
+    .attr("r",48)
+    .attr("fill",(d)=>d.color)
+
+  newVoteButtons.append("text")
+    .text((d,i) => d.name)
+    .attr("dy", 4)
+
+  newVoteButtons.append("text")
+    .attr("dy", -20)
+    .attr("class", "votecount")
+
+  voteButtons.selectAll("text.votecount")
+    .text((d,i) => +d.votes)
+};
+
+updateVotes();
+
+const socket = io()
+socket.on('connect', () => { console.log('connect', socket.id) })
+
+socket.on('demo:votes', (votes) => {
+  voteData.forEach((o) => { o.votes = votes[o.id]; })
+  updateVotes()
+})
+
+socket.on('demo:fns', (fns) => {
+  newData = []
+  for (fn in fns) { if (fns.hasOwnProperty(fn)) {
+    newData.push({ id:fn, replicas:fns[fn] });
+  }}
+  functionData = newData
+  updateFunctions();
+})
+
+on(window, 'beforeunload', () => {
+  console.log('disconnect', socket.id)
+  socket.disconnect()
+})
+
+// fix function scale _after_ resize
+// TODO: fix with throttle - https://developer.mozilla.org/en-US/docs/Web/Events/resize
+// right now this triggers before resize
+// on(window, 'resize', updateFunctions)
+
+function el(id) { return document.getElementById(id); }
+function on(el,evt,fn) { return el.addEventListener(evt, fn); }
 </script>
-
-<div style="text-align:left;"> 
-<div id="mousebox" style="display:inline-block; width:100%; height:100px; background-color:#ffa; border:1px solid #777;"></div>
-<br>x = <span id="x">?</span>
-<br>y = <span id="y">?</span>
-<br>redis x = <span id="redis-x">?</span>
-<br>redis y = <span id="redis-y">?</span>
-<br>scale = <span id="redis-scale">?</span>
-</div>
-
-<script>
-  el('mousebox').addEventListener('mousemove', (evt) => {
-    socket.emit('mouseevent', { x:evt.offsetX, y:evt.offsetY })
-  }) 
-</script>        
-</div>

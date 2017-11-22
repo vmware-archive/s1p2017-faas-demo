@@ -16,7 +16,7 @@ Defaults are localhost, 6379, and no auth.
 
 #### To build docker image
 ```
-docker build -t jldec/sk8s-ui .
+docker build -t projectriff/riff-demo-ui .
 ```
 
 #### To apply to k8s
