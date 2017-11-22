@@ -1,36 +1,68 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+@import url("/css/style.css");
+</style>
+
+<svg class="votes" viewBox="0 0 400 100"></svg>
+<svg class="results"></svg>      
+<svg class="functions"></svg>
+
 <script src="/js/d3.v4.min.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 <script>
-  var socket = io()
-  socket.on('connect', () => { console.log('connect', socket.id) })
-  socket.on('logevent', (evt) => { console.log(evt); })
-  socket.on('echoevent', (evt) => { 
-    el('x').innerHTML = evt.x
-    el('y').innerHTML = evt.y    
-  })
-  socket.on('demo:x', (x) => { el('redis-x').innerHTML = x })
-  socket.on('demo:y', (y) => { el('redis-y').innerHTML = y })
-  socket.on('demo:fns', (fns) => { el('redis-scale').innerHTML = JSON.stringify(fns) })
 
-  window.addEventListener('beforeunload', () => {
-    console.log('disconnect', socket.id)
-    socket.disconnect();
-  })
-  function el(id) { return document.getElementById(id); }
+const data = [
+{id:"boot", name:"Boot 2", votes:0, color:"#6db33f" },
+{id:"framework", name:"Framework 5", votes:0, color:"#0e9fda"},
+{id:"reactor", name:"Reactor", votes:0, color:"#ea9999"},
+{id:"riff", name:"riff", votes:0, color:"#f6b26b"}
+];
+
+function updateVotes(data) {
+  var areas = d3.select("svg.votes").selectAll("g").data(data,(d)=>d.id)
+
+  var draw = areas.enter()
+    .append("g")
+    .attr("transform", (d,i) => "translate("+ (i*100+50) +",50)")
+    .on('click', (d,i) => {
+      socket.emit('vote', d.id)
+    })
+
+  draw.append("circle")
+    .attr("class","vote-button")
+    .attr("r",48)
+    .attr("fill",(d)=>d.color)
+
+  draw.append("text")
+    .text((d,i) => d.name)
+    .attr("dy", 4)
+
+  draw.append("text")
+    .attr("dy", -20)
+    .attr("class", "votecount")
+
+  areas.selectAll("text.votecount")
+    .text((d,i) => +d.votes)
+};
+
+updateVotes(data);
+
+const socket = io()
+socket.on('connect', () => { console.log('connect', socket.id) })
+
+socket.on('demo:votes', (votes) => { 
+  data.forEach((o) => { o.votes = votes[o.id]; })
+  updateVotes(data)
+})
+
+socket.on('demo:fns', (fns) => { console.log(fns); })
+
+on(window, 'beforeunload', () => {
+  console.log('disconnect', socket.id)
+  socket.disconnect()
+})
+
+function el(id) { return document.getElementById(id); }
+function on(el,evt,fn) { return el.addEventListener(evt, fn); }
 </script>
-
-<div style="text-align:left;"> 
-<div id="mousebox" style="display:inline-block; width:100%; height:100px; background-color:#ffa; border:1px solid #777;"></div>
-<br>x = <span id="x">?</span>
-<br>y = <span id="y">?</span>
-<br>redis x = <span id="redis-x">?</span>
-<br>redis y = <span id="redis-y">?</span>
-<br>scale = <span id="redis-scale">?</span>
-</div>
-
-<script>
-  el('mousebox').addEventListener('mousemove', (evt) => {
-    socket.emit('mouseevent', { x:evt.offsetX, y:evt.offsetY })
-  }) 
-</script>        
-</div>
