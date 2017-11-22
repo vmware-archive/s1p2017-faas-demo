@@ -39,19 +39,26 @@ io.on('connection', (socket) => {
   })
 
   console.log(`connect ${socket.id}`)
-  socket.on('logevent', (evt) => { console.log(evt); })
-
+  
   socket.on('mouseevent', (evt) => { 
     redisDB.mset('demo:x', evt.x, 'demo:y', evt.y, (err) => {
+      if (err) console.log('Error writing mouseevent to redis' + err);
       socket.emit('echoevent', evt); 
     })
   })
   
+  socket.on('vote', (evt) => {
+    redisDB.hincrby("demo:votes", evt, 1, (err) => {
+      if (err) console.log('Error writing votes to redis' + err);
+    })
+  })
+
   function redisEvent(pat, ch, msg) { 
     const key = ch.replace(/[^:]*:(.*)/,'$1')
     switch (key) {
     case 'demo:fns':
-      redisDB.hgetall(key, (err, vals) => {
+    case 'demo:votes':
+    redisDB.hgetall(key, (err, vals) => {
         if (err) return;
         socket.emit(key, vals)
       })
@@ -97,17 +104,20 @@ app.post('/', (req, res) => {
 // use /echo for debugging with request counter middleware
 var reqcnt = 0;
 app.use((req, res, next) => { reqcnt++; next(); })
-app.use('/echo', (req, res) => { res.send(
-{ reqcnt: reqcnt,
-  env: process.env,
-  method: req.method,
-  originalUrl: req.originalUrl,
-  headers: req.headers,
-  query: req.query,
-  params: req.params,
-  body: req.body,
-  cookies: req.cookies }
-)})
+app.use('/echo', (req, res) => { 
+  res.send(util.inspect(
+    { reqcnt: reqcnt,
+      env: process.env,
+      method: req.method,
+      originalUrl: req.originalUrl,
+      headers: req.headers,
+      query: req.query,
+      params: req.params,
+      body: req.body,
+      cookies: req.cookies },
+    { depth:2 }
+  ))
+})
 
 // default to serving static for all other paths
 app.use(express.static('public'))
