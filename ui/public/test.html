@@ -7,7 +7,8 @@
 <br>redis x = <span id="redis-x">?</span>
 <br>redis y = <span id="redis-y">?</span>
 <br>scale = <span id="redis-scale">?</span>
-<br><span id="testfn" style="color:#35b; text-decoration:underline; cursor:pointer;">test scale</span> 
+<br><span id="testfn-up" style="color:#35b; text-decoration:underline; cursor:pointer;">test scale up</span>
+<br><span id="testfn-down" style="color:#35b; text-decoration:underline; cursor:pointer;">test scale down</span>
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
@@ -27,13 +28,15 @@ on(window, 'beforeunload', () => {
 })
 
 const testobj = {"testfn":0};
-on(el('testfn'), 'click', (evt)  => {
+on(el('testfn-up'), 'click', (evt) => { testobj.testfn++; testPost(); })
+on(el('testfn-down'), 'click', (evt) => { testobj.testfn--; testPost(); })
+
+function testPost() {
   fetch('/', { 
     method: 'POST',
     body: JSON.stringify(testobj)
   })
-  testobj.testfn++
-})
+}
 
 on(el('mousebox'), 'mousemove', (evt) => {
   socket.emit('mouseevent', { x:evt.offsetX, y:evt.offsetY })
