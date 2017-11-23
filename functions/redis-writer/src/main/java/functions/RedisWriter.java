@@ -1,24 +1,104 @@
+/*
+ * Copyright 2017 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package functions;
 
 import java.util.Map;
 import java.util.function.Function;
 
-import redis.clients.jedis.Client;
+import javax.annotation.PostConstruct;
 
-public class RedisWriter implements Function<Map<String, Integer>, String> {
+import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 
-	private Client client = new Client(System.getenv("REDIS_HOST"),
-			Integer.parseInt(System.getenv("REDIS_PORT")));
+/**
+ * @author Mark Fisher
+ */
+public class RedisWriter implements Function<Map<String, Object>, String> {
 
-	public String apply(Map<String, Integer> counts) {
-		client.connect();
-		client.auth(System.getenv("REDIS_PASSWORD"));
-		for (Map.Entry<String, Integer> entry : counts.entrySet()) {
-			// TODO: config options for different datatypes and operations
-			//client.incrBy(entry.getKey().getBytes(), entry.getValue());
-			client.set(entry.getKey(), entry.getValue().toString());
+	private static final String COMMAND_KEY = "_command";
+
+	private enum Command { set, increment }
+
+	private final RedisTemplate<String, String> template = new RedisTemplate<>();
+
+	@PostConstruct
+	public void init() {
+		JedisConnectionFactory connectionFactory = new JedisConnectionFactory();
+		if (System.getenv("REDIS_HOST") != null) {
+			connectionFactory.setHostName(System.getenv("REDIS_HOST"));
 		}
-		client.close();
+		if (System.getenv("REDIS_PORT") != null) {
+			connectionFactory.setPort(Integer.parseInt(System.getenv("REDIS_PORT")));
+		}
+		if (System.getenv("REDIS_PASSWORD") != null) {
+			connectionFactory.setPassword(System.getenv("REDIS_PASSWORD"));
+		}
+		connectionFactory.afterPropertiesSet();
+		this.template.setConnectionFactory(connectionFactory);
+		this.template.setDefaultSerializer(new StringRedisSerializer());
+		this.template.afterPropertiesSet();
+	}
+
+	public String apply(Map<String, Object> input) {
+		Command command = Command.set;
+		if (input.containsKey(COMMAND_KEY)) {
+			try {
+				command = Command.valueOf(input.get(COMMAND_KEY).toString());
+			}
+			catch (IllegalArgumentException e) {
+				throw new IllegalArgumentException(
+						"unsupported operation: " + input.get(COMMAND_KEY).toString());
+			}
+		}
+		for (Map.Entry<String, Object> entry : input.entrySet()) {
+			String key = entry.getKey();
+			if (COMMAND_KEY.equals(key)) {
+				continue;
+			}
+			Object value = entry.getValue();
+			if (value instanceof Map) { // hash
+				@SuppressWarnings("unchecked")
+				Map<String, Object> innerMap = (Map<String, Object>) value;
+				for (Map.Entry<String, Object> innerEntry : innerMap.entrySet()) {
+					String innerKey = innerEntry.getKey();
+					switch (command) {
+					case increment:
+						this.template.boundHashOps(key).increment(innerKey,
+								Long.parseLong(innerEntry.getValue().toString()));
+						break;
+					default:
+						this.template.boundHashOps(key).put(innerKey,
+								innerEntry.getValue().toString());
+						break;
+					}
+				}
+			}
+			else { // top-level key
+				switch (command) {
+				case increment:
+					this.template.boundValueOps(key).increment(Long.parseLong(value.toString()));
+					break;
+				default:
+					this.template.boundValueOps(key).set(value.toString());
+					break;
+				}
+			}
+		}
 		return "done";
 	}
 }

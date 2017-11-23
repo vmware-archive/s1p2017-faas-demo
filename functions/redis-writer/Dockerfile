@@ -1,4 +1,5 @@
-FROM sk8s/java-function-invoker:0.0.1-SNAPSHOT
-ENV REDIS_HOST counters-redis.default.svc.cluster.local
-ENV REDIS_PORT 6379
-ADD target/redis-writer-1.0.0.jar /functions/function.jar
+FROM projectriff/java-function-invoker:0.0.1-SNAPSHOT
+ARG FUNCTION_JAR=/functions/redis-writer-1.0.0.jar
+ARG FUNCTION_CLASS=functions.RedisWriter
+ADD target/redis-writer-1.0.0.jar $FUNCTION_JAR
+ENV FUNCTION_URI file://${FUNCTION_JAR}?handler=${FUNCTION_CLASS}
