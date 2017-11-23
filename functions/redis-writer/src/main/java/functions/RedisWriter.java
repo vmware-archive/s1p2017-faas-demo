@@ -24,6 +24,7 @@ import javax.annotation.PostConstruct;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.util.ClassUtils;
 
 /**
  * @author Mark Fisher
@@ -55,6 +56,16 @@ public class RedisWriter implements Function<Map<String, Object>, String> {
 	}
 
 	public String apply(Map<String, Object> input) {
+		ClassLoader contextClassLoader = ClassUtils.overrideThreadContextClassLoader(getClass().getClassLoader());
+		try {
+			return invokeCommand(input);
+		}
+		finally {
+			ClassUtils.overrideThreadContextClassLoader(contextClassLoader);
+		}
+	}
+
+	public String invokeCommand(Map<String, Object> input) {
 		Command command = Command.set;
 		if (input.containsKey(COMMAND_KEY)) {
 			try {
