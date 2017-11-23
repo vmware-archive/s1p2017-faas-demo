@@ -38,43 +38,55 @@ function updateFunctions() {
     .domain([0, 20]) // d3.max(functionData, (d)=>d.replicas)+1])
     .range([0, width])
 
-  var functions = svg.selectAll("g")
+  var groups = svg.selectAll("g")
     .data(functionData, (d) => d.id)
 
-  var newFunctions = functions.enter()
-    .append("g")
-    .attr("transform", (d,i) => "translate(0,"+ (i * (dy + gap)) +")")
-    .attr("class", "replicas")
+  var deletes = groups.exit().remove()
 
-  newFunctions.append("rect")
+  var inserts = groups.enter().append("g")
+    .attr("transform", (d,i) => "translate(0,"+ (i * (dy + gap)) +")")
+
+  inserts.append("rect")
     .attr("height", dy)
-    .attr("class", "replicas")
     .attr("width", (d) => dx(d.replicas))
 
-  newFunctions.append("text")
-    .text((d,i) => d.id)
-    .attr("class", "replicas")
-    .attr("dx", (d) => dx(d.replicas) + 2)
-    .attr("dy", dy - 2)
+  inserts.append("text")
+    .attr("class", "scale")
+    .text((d) => d.replicas)
+    .attr("dx", 4)
+    .attr("dy", dy - 4)
 
-  svg.selectAll("g.replicas")
-    .attr("transform", (d,i) => "translate(0,"+ (i * (dy + gap)) +")")
+  inserts.append("text")
+    .attr("class", "label")
+    .text((d) => d.id)
+    .attr("dx", (d) => dx(d.replicas) + 4)
+    .attr("dy", dy - 4)
 
-  svg.selectAll("rect.replicas")
+  // updates
+  groups.attr("transform", (d,i) => "translate(0,"+ (i * (dy + gap)) +")")
+
+  groups.selectAll("rect")
     .attr("width", (d) => dx(d.replicas))
 
-  svg.selectAll("text.replicas")
+  groups.selectAll("text.scale")
+    .text((d) => d.replicas)
+
+  groups.selectAll("text.label")
     .attr("dx", (d) => dx(d.replicas) + 2)
-    .attr("dy", dy - 2)
 }
 
 updateFunctions()
 
 function updateVotes() {
-  var voteButtons = d3.select("svg.votes").selectAll("g").data(voteData,(d)=>d.id)
+  var voteButtons = d3.select("svg.votes").selectAll("g")
+    .data(voteData,(d)=>d.id)
 
-  var newVoteButtons = voteButtons.enter()
-    .append("g")
+  // updates
+  voteButtons.selectAll("text.votecount")
+    .text((d,i) => +d.votes)
+
+  // inserts
+  var newVoteButtons = voteButtons.enter().append("g")
     .attr("transform", (d,i) => "translate("+ (i*100+50) +",50)")
     .on('click', (d,i) => {
       socket.emit('vote', d.id)
@@ -92,8 +104,6 @@ function updateVotes() {
   newVoteButtons.append("text")
     .attr("dy", -20)
     .attr("class", "votecount")
-
-  voteButtons.selectAll("text.votecount")
     .text((d,i) => +d.votes)
 };
 
@@ -108,12 +118,15 @@ socket.on('demo:votes', (votes) => {
 })
 
 socket.on('demo:fns', (fns) => {
-  newData = []
-  for (fn in fns) { if (fns.hasOwnProperty(fn)) {
-    newData.push({ id:fn, replicas:fns[fn] });
-  }}
-  functionData = newData
-  updateFunctions();
+  for (fn in fns) {
+    var oldfn = d3.map(functionData, (d)=>d.id).get(fn)
+    if (oldfn) {
+      oldfn.replicas = fns[fn]; // update with new replicas count
+    } else {
+      functionData.push({ id:fn, replicas:fns[fn] });
+    }
+  }
+  updateFunctions()
 })
 
 on(window, 'beforeunload', () => {
