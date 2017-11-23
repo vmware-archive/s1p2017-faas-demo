@@ -1,5 +1,5 @@
 body {
-  font-family: sans-serif;
+  font-family: monospace;
   margin: 0;
 }
 
@@ -20,7 +20,6 @@ svg {
   
 .votes text {
   cursor: pointer; 
-  font-family: monospace;
   font-size: 12px;
   text-anchor: middle;
   fill: #fff;
@@ -35,7 +34,12 @@ svg {
   fill: #bbb;
 }
 
-.functions text {
-  font-size: 20px;
-  fill: #555;
+.functions text.scale {
+  font-size: 18px;
+  fill: #fff;
+}
+
+.functions text.label {
+  font-size: 18px;
+  fill: #444;
 }
