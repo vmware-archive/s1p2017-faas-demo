@@ -35,10 +35,26 @@ public class RedisWriter implements Function<Map<String, Object>, String> {
 
 	private enum Command { set, increment }
 
+	private String hashKey;
+
+	private Command defaultCommand = Command.set;
+
 	private final RedisTemplate<String, String> template = new RedisTemplate<>();
 
 	@PostConstruct
 	public void init() {
+		if (System.getenv("HASH_KEY") != null) {
+			this.hashKey = System.getenv("HASH_KEY");
+		}
+		if (System.getenv("DEFAULT_COMMAND") != null) {
+			try {
+				this.defaultCommand = Command.valueOf(System.getenv("DEFAULT_COMMAND"));
+			}
+			catch (IllegalArgumentException e) {
+				throw new IllegalArgumentException(
+						"unsupported command: " + System.getenv("DEFAULT_COMMAND"));
+			}
+		}
 		JedisConnectionFactory connectionFactory = new JedisConnectionFactory();
 		if (System.getenv("REDIS_HOST") != null) {
 			connectionFactory.setHostName(System.getenv("REDIS_HOST"));
@@ -66,14 +82,14 @@ public class RedisWriter implements Function<Map<String, Object>, String> {
 	}
 
 	public String invokeCommand(Map<String, Object> input) {
-		Command command = Command.set;
+		Command command = this.defaultCommand;
 		if (input.containsKey(COMMAND_KEY)) {
 			try {
 				command = Command.valueOf(input.get(COMMAND_KEY).toString());
 			}
 			catch (IllegalArgumentException e) {
 				throw new IllegalArgumentException(
-						"unsupported operation: " + input.get(COMMAND_KEY).toString());
+						"unsupported command: " + input.get(COMMAND_KEY).toString());
 			}
 		}
 		for (Map.Entry<String, Object> entry : input.entrySet()) {
@@ -99,7 +115,18 @@ public class RedisWriter implements Function<Map<String, Object>, String> {
 					}
 				}
 			}
-			else { // top-level key
+			else if (this.hashKey != null) {
+				switch (command) {
+				case increment:
+					this.template.boundHashOps(this.hashKey).increment(key,
+							Long.parseLong(value.toString()));
+					break;
+				default:
+					this.template.boundHashOps(this.hashKey).put(key, value.toString());
+					break;
+				}
+			}
+			else {
 				switch (command) {
 				case increment:
 					this.template.boundValueOps(key).increment(Long.parseLong(value.toString()));

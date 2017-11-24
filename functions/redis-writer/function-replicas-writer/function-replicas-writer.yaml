@@ -1,0 +1,25 @@
+apiVersion: projectriff.io/v1
+kind: Topic
+metadata:
+  name: function-replicas
+---
+
+apiVersion: projectriff.io/v1
+kind: Function
+metadata:
+  name: function-replicas-writer
+spec:
+  protocol: http
+  input: function-replicas
+  container:
+    image: projectriff/redis-writer:1.0.0
+    env:
+    - name: HASH_KEY
+      value: demo:function-replicas
+    - name: REDIS_HOST
+      value: counters-redis.default.svc.cluster.local
+    - name: REDIS_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: counters-redis
+          key: redis-password

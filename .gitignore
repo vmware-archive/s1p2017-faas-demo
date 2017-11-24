@@ -1,5 +1,6 @@
 target/
 dependency-reduced-pom.xml
+dump.rdb
 !.mvn/wrapper/maven-wrapper.jar
 
 ### STS ###
