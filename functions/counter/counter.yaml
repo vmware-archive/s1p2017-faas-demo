@@ -1,24 +1,22 @@
-apiVersion: extensions.sk8s.io/v1
+apiVersion: projectriff.io/v1
 kind: Topic
 metadata:
   name: words
 ---
 
-apiVersion: extensions.sk8s.io/v1
+apiVersion: projectriff.io/v1
 kind: Topic
 metadata:
   name: counts
 ---
 
-apiVersion: extensions.sk8s.io/v1
+apiVersion: projectriff.io/v1
 kind: Function
 metadata:
   name: counter
 spec:
-  image: sk8s/counter:1.0.0
   protocol: http
   input: words
   output: counts
-  env:
-  - name: FUNCTION_URI
-    value: file:///functions/function.jar?functions.Counter
+  container:
+    image: projectriff/counter:1.0.0
