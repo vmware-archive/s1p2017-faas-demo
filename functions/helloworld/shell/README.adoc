@@ -1,0 +1,31 @@
+= hello-shell
+
+[horizontal]
+*Language*:: Shell
+*Function*:: https://github.com/markfisher/s1p2017-faas-demo/blob/master/functions/helloworld/shell/hello.sh[hello.sh]
+*Protocol*:: stdio
+*Input*:: names
+
+=== Build the Docker container for the function code
+
+```
+./faas build -n hello-shell -v 1.0.0 -f functions/helloworld/shell
+```
+
+=== Create the Function and Topic(s)
+
+```
+./faas apply -f functions/helloworld/shell
+```
+
+=== Publish a request/reply Message to the Input Topic
+
+```
+./request names 'San Francisco'
+```
+
+=== Delete the function
+
+```
+./faas delete -n hello-shell
+```

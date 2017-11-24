@@ -1,0 +1,9 @@
+apiVersion: projectriff.io/v1
+kind: Function
+metadata:
+  name: hello-shell
+spec:
+  protocol: stdio
+  input: names
+  container:
+    image: projectriff/hello-shell:1.0.0
