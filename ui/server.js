@@ -2,7 +2,6 @@ const express = require('express')
 const app = express()
 const server = require('http').Server(app)
 const util = require('util')
-const bodyParser = require('body-parser')
 
 // object matching destructuring inspired by https://apex.github.io/up/#getting_started
 const { 
@@ -53,10 +52,25 @@ io.on('connection', (socket) => {
     })
   })
 
+  socket.on('testscale', (evt) => {
+    console.log('testscale event: ', evt)
+    for (fn in evt) {
+      if (evt[fn] == "delete") {
+        redisDB.hdel('demo:function-replicas', fn, (err) => {
+          if (err) console.log('Error deleting function-replicas from redis' + err);
+        })
+      } else {
+        redisDB.hset('demo:function-replicas', fn, evt[fn], (err) => {
+          if (err) console.log('Error writing function-replicas to redis' + err);
+        })
+      }
+    }
+  })
+
   function redisEvent(pat, ch, msg) { 
     const key = ch.replace(/[^:]*:(.*)/,'$1')
     switch (key) {
-    case 'demo:fns':
+    case 'demo:function-replicas':
     case 'demo:votes':
     redisDB.hgetall(key, (err, vals) => {
         if (err) return;
@@ -70,33 +84,6 @@ io.on('connection', (socket) => {
         socket.emit(key, val)
       })
       break;
-    }
-  }
-})
-
-app.use('/', bodyParser.text());
-
-// handle event from kafka function-replicas topic via sidecar
-app.post('/', (req, res) => {
-  const event = safeParseJSON(req.body);
-  const retval = "function-replicas event: " + JSON.stringify(event)
-  console.log(retval);
-
-  for (fn in event) { if (event.hasOwnProperty(fn)) {
-    redisDB.hset(['demo:fns', fn, event[fn]], (err) => {
-      if (err) console.log('Error writing function-replicas to redis' + err);
-    })
-  }}
-
-  res.type("text/plain")
-  res.status(200).send(retval)
-
-  function safeParseJSON(s) {
-    try {
-      return JSON.parse(s);
-    } catch(err) {
-      console.log('error parsing event JSON: ' + s);
-      return {};
     }
   }
 })

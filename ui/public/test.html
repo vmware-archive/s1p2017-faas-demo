@@ -6,15 +6,17 @@
 <br>y = <span id="y">?</span>
 <br>redis x = <span id="redis-x">?</span>
 <br>redis y = <span id="redis-y">?</span>
-<br>scale = <span id="redis-scale">?</span>
-<br><span id="testfn1-up" style="color:#35b; text-decoration:underline; cursor:pointer;">testfn1 scale up</span>
-<br><span id="testfn1-down" style="color:#35b; text-decoration:underline; cursor:pointer;">testfn1 scale down</span>
-<br><span id="testfn2-up" style="color:#35b; text-decoration:underline; cursor:pointer;">testfn2 scale up</span>
-<br><span id="testfn2-down" style="color:#35b; text-decoration:underline; cursor:pointer;">testfn2 scale down</span>
+<h3>demo:function-replicas</h3>
+scale = <span id="redis-scale">?</span>
+<ul>
+  <li><a href="javascript:" id="testfn1-up">scale up</a>
+  <li><a href="javascript:" id="testfn1-down">scale down</a></li>
+  <li><a href="javascript:" id="testfn1-delete">delete</a></li>
+</ul>
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
-var testobj = { "testfn1":0, "testfn2":0 }; // note - object ref is mutable
+var testobj = {}
 
 const socket = io()
 socket.on('connect', () => { console.log('connect', socket.id) })
@@ -25,9 +27,9 @@ socket.on('echoevent', (evt) => {
 socket.on('demo:x', (x) => { el('redis-x').innerHTML = x })
 socket.on('demo:y', (y) => { el('redis-y').innerHTML = y })
 
-socket.on('demo:fns', (fns) => {
-  el('redis-scale').innerHTML = JSON.stringify(fns)
-  testobj = fns; // replace entire state!
+socket.on('demo:function-replicas', (fns) => {
+  testobj = fns || {}; // replace entire state - won't work with d3
+  el('redis-scale').innerHTML = JSON.stringify(testobj)
 })
 
 on(window, 'beforeunload', () => {
@@ -35,17 +37,22 @@ on(window, 'beforeunload', () => {
   socket.disconnect()
 })
 
-on(el('testfn1-up'), 'click', (evt) => { testobj.testfn1++; testPost(); })
-on(el('testfn1-down'), 'click', (evt) => { if(testobj.testfn1 > 0) { testobj.testfn1--; } testPost(); })
-on(el('testfn2-up'), 'click', (evt) => { testobj.testfn2++; testPost(); })
-on(el('testfn2-down'), 'click', (evt) => { if(testobj.testfn2 > 0) { testobj.testfn2--; } testPost(); })
+on(el('testfn1-up'), 'click', (evt) => {
+  var val = testobj.testfn1 ? +testobj.testfn1 + 1 : 1
+  socket.emit('testscale', { testfn1: val })
+  return true;
+})
 
-function testPost() {
-  fetch('/', { 
-    method: 'POST',
-    body: JSON.stringify(testobj)
-  })
-}
+on(el('testfn1-down'), 'click', (evt) => {
+  var val = +testobj.testfn1 > 0 ? +testobj.testfn1 - 1 : 0
+  socket.emit('testscale', { testfn1: val })
+  return true;
+})
+
+on(el('testfn1-delete'), 'click', (evt) => {
+  socket.emit('testscale', { testfn1: "delete" })
+  return true;
+})
 
 on(el('mousebox'), 'mousemove', (evt) => {
   socket.emit('mouseevent', { x:evt.offsetX, y:evt.offsetY })

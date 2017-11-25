@@ -7,6 +7,7 @@
 <svg class="votes" viewBox="0 0 400 100"></svg>
 <svg class="functions"></svg>
 <svg class="results"></svg>
+&nbsp;<a href="test.html" target="_new">test</a>
 
 <script src="/js/d3.v4.min.js"></script>
 <script src="/socket.io/socket.io.js"></script>
@@ -20,8 +21,6 @@ const voteData = [
 ];
 
 var functionData = [
-{id:"testfn1", replicas:1},
-{id:"testfn2", replicas:3}
 ]
 
 function updateFunctions() {
@@ -117,14 +116,18 @@ socket.on('demo:votes', (votes) => {
   updateVotes()
 })
 
-socket.on('demo:fns', (fns) => {
-  for (fn in fns) {
-    var oldfn = d3.map(functionData, (d)=>d.id).get(fn)
-    if (oldfn) {
-      oldfn.replicas = fns[fn]; // update with new replicas count
+socket.on('demo:function-replicas', (fns) => {
+  fns = fns || {}
+  functionData.forEach((obj, i) => {
+    if (fns.hasOwnProperty(obj.id)) {
+      obj.replicas = fns[obj.id] // update existing data
+      delete fns[obj.id] // and remove from input hash
     } else {
-      functionData.push({ id:fn, replicas:fns[fn] });
+      functionData.splice(i,1); // delete extra data
     }
+  })
+  for (fn in fns) {
+    functionData.push({ id:fn, replicas:fns[fn] }) // insert missing data
   }
   updateFunctions()
 })

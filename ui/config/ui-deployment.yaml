@@ -23,10 +23,3 @@ spec:
             secretKeyRef:
               name: counters-redis
               key: redis-password
-      - image: projectriff/function-sidecar:0.0.1-SNAPSHOT
-        name: sidecar
-        imagePullPolicy: IfNotPresent
-        env:
-        - name: SPRING_APPLICATION_JSON
-          value: '{"spring.cloud.stream.bindings.input.destination":"function-replicas","spring.cloud.stream.bindings.output.destination":"replies","spring.cloud.stream.bindings.input.group":"ui","spring.profiles.active":"http","spring.application.name":"sidecar-ui","spring.cloud.stream.kafka.binder.brokers":"kafka:9092","spring.cloud.stream.kafka.binder.zkNodes":"zookeeper:2181","server.port":"-1"}'
-      serviceAccountName: riff-sa

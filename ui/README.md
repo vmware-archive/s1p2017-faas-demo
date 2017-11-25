@@ -23,13 +23,14 @@ docker build -t projectriff/riff-demo-ui .
 ```
 kubectl apply -f config
 ```
-This will deploy a pod with the ui server container using the image above as well as the function sidecar.
+This will deploy a pod with the ui server container using the image above.
 
-Open the K8s service in the browser by running:
+Open the k8s service in the browser by running:
 ```
 minikube service ui
 ```
 
 #### Debugging
-- websocket connect and disconnect messages should appear in the browser console when the root page is loaded  
+- websocket connect and disconnect messages should appear in the browser console and server log.
+- use the `/test.html` endpoint to see the old mouse-event test page and test replica counts
 - use the `/echo` endpoint to see the environment
