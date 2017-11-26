@@ -1,0 +1,9 @@
+#!/bin/bash
+export REDIS_PORT=$(kubectl get svc counters-redis -o jsonpath='{.spec.ports[0].nodePort}')
+export REDIS_HOST=$(minikube ip)
+export REDIS_PASSWORD=$(kubectl get secret --namespace default counters-redis -o jsonpath="{.data.redis-password}" | base64 --decode)
+
+export HTTP_GATEWAY_SERVICE_HOST=$(minikube ip)
+export HTTP_GATEWAY_SERVICE_PORT=$(kubectl get svc http-gateway -o jsonpath='{.spec.ports[0].nodePort}')
+
+env | grep -e HTTP_GATEWAY -e REDIS

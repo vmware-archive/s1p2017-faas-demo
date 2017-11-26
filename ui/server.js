@@ -2,14 +2,21 @@ const express = require('express')
 const app = express()
 const server = require('http').Server(app)
 const util = require('util')
+const fetch = require('node-fetch')
+
 
 // object matching destructuring inspired by https://apex.github.io/up/#getting_started
 const { 
   PORT = 8080,
   REDIS_HOST,
   REDIS_PORT,
-  REDIS_PASSWORD
+  REDIS_PASSWORD,
+  HTTP_GATEWAY_SERVICE_HOST,
+  HTTP_GATEWAY_SERVICE_PORT
 } = process.env
+
+// correlate fetch requests
+var fetch_count = 0
 
 const redisLib = require("redis")
 const redisOpts = {host:REDIS_HOST, port:REDIS_PORT, auth_pass:REDIS_PASSWORD}
@@ -47,9 +54,20 @@ io.on('connection', (socket) => {
   })
 
   socket.on('vote', (evt) => {
-    redisDB.hincrby("demo:votes", evt, 1, (err) => {
-      if (err) console.log('Error writing votes to redis' + err);
+//    redisDB.hincrby("demo:votes", evt, 1, (err) => {
+//      if (err) console.log('Error writing votes to redis' + err);
+//    })
+    const endpoint = `http://${HTTP_GATEWAY_SERVICE_HOST}:${HTTP_GATEWAY_SERVICE_PORT}/requests/votes`
+    const body = `{"${evt}":1, "_command":"increment"}`
+    fetch_count++
+    console.log('fetch', fetch_count, endpoint, body)
+    fetch(endpoint, {
+      method: 'POST',
+      body: body,
+      headers: { 'Content-Type': 'text/plain' }
     })
+    .then(res => console.log(fetch_count, res.status))
+    .catch(err => console.log(fetch_count, err))
   })
 
   socket.on('testscale', (evt) => {
@@ -92,7 +110,7 @@ io.on('connection', (socket) => {
 var reqcnt = 0;
 app.use((req, res, next) => { reqcnt++; next(); })
 app.use('/echo', (req, res) => {
-  res.send(util.inspect(
+  res.send('<pre>'+util.inspect(
     { reqcnt: reqcnt,
       env: process.env,
       method: req.method,
@@ -103,7 +121,7 @@ app.use('/echo', (req, res) => {
       body: req.body,
       cookies: req.cookies },
     { depth:2 }
-  ))
+  )+'</pre>')
 })
 
 // default to serving static for all other paths

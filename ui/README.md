@@ -1,30 +1,45 @@
-# UI server
-nodejs socket.io server backed by redis  
-designed for real-time demos
+# Demo UI server
+nodejs socket.io server backed by redis
 
-#### To run standalone locally
+The server looks for redis using environment variables `REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD`.
+Defaults are localhost, 6379, and no auth.
+
+Votes are posted to the votes topic in Riff via the http-gateway service configured 
+at `HTTP_GATEWAY_SERVICE_HOST` and `HTTP_GATEWAY_SERVICE_PORT`. Current votecounts are
+displayed by monitoring the `demo:votes` hash in redis.
+
+Function replica counts are monitored from redis hash `demo:function-replicas`.
+
+#### To run locally with redis and http-gateway in k8s
 ```
 cd ui
 npm install
+
+source scripts/localenv # this confgures the environment for redis and http-gateway
 node server
 ```
-Point your browser to http://localhost:8080.
-If redis is working the display will update with the mouse position as you move over the yellow box.
 
-The server looks for redis using environment variables `REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD`.
-Defaults are localhost, 6379, and no auth.  
+#### To install redis in k8s
+change to the demo directory
+```
+helm init
+scripts/install-redis
+```
 
-#### To build docker image
+#### To build and install the redis-writer functions in k8s
+change to the demo/functions/redis-writer directory
+```
+./mvnw clean package
+minikube apply -f .
+minikube apply -f runction-replica-writer
+```
+
+#### To build the ui docker image and install in k8s
+change to the demo/ui directory.
 ```
 docker build -t projectriff/riff-demo-ui .
-```
-
-#### To apply to k8s
-```
 kubectl apply -f config
 ```
-This will deploy a pod with the ui server container using the image above.
-
 Open the k8s service in the browser by running:
 ```
 minikube service ui
@@ -32,5 +47,6 @@ minikube service ui
 
 #### Debugging
 - websocket connect and disconnect messages should appear in the browser console and server log.
-- use the `/test.html` endpoint to see the old mouse-event test page and test replica counts
-- use the `/echo` endpoint to see the environment
+- tail the server log in k8s using `kubetail ui`
+- use the `/test.html` endpoint to see the old mouse-event test page and to test visualizing changes in function replica counts
+- use the `/echo` endpoint to see the environment in the server
