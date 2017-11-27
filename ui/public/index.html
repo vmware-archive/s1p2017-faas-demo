@@ -6,7 +6,7 @@
 
 <svg class="votes" viewBox="0 0 400 100"></svg>
 <svg class="functions"></svg>
-<svg class="results"></svg>
+<svg class="log" viewBox="0 0 400 100"></svg>
 &nbsp;<a href="test.html" target="_new">test</a>
 
 <script src="/js/d3.v4.min.js"></script>
@@ -22,6 +22,58 @@ const voteData = [
 
 var functionData = [
 ]
+
+var logData = [
+]
+
+function updateLog(evt) {
+  const max = 30
+  var cnt = logData.push(evt)
+  if (cnt > max) { 
+    logData.shift() 
+    cnt--
+  }
+  var missing = max - cnt
+
+  var groups = d3.select("svg.log").selectAll("g")
+    .data(logData,(d) => d.t)
+
+  // updates
+  groups.attr("transform", (d,i) => {
+    return "translate("+ (((missing+i) * 10) + 50) +",0)"
+  })
+  groups.exit().remove();
+
+  var inserts = groups.enter().append("g")
+    .attr("transform", (d,i) => {
+      return "translate("+ (((missing+i) * 10) + 50) +",0)"
+    })
+
+  inserts.append("rect")
+    .attr("width", 8)
+    .attr("x",0)
+    .attr("y", (d) => 100 - (d.sec.boot)*5)
+    .attr("height", (d) => (d.sec.boot)*5)
+    .attr("fill", "#6db33f")
+  inserts.append("rect")
+    .attr("width", 8)
+    .attr("x",0)
+    .attr("y", (d) => 100 - (d.sec.framework + d.sec.boot)*5)
+    .attr("height", (d) => (d.sec.framework)*5)
+    .attr("fill", "#0e9fda")
+  inserts.append("rect")
+    .attr("width", 8)
+    .attr("x",0)
+    .attr("y", (d) => 100 - (d.sec.reactor + d.sec.boot + d.sec.framework)*5)
+    .attr("height", (d) => (d.sec.reactor)*5)
+    .attr("fill", "#ea9999")
+  inserts.append("rect")
+    .attr("width", 8)
+    .attr("x",0)
+    .attr("y", (d) => 100 - (d.sec.riff + d.sec.boot + d.sec.framework + d.sec.reactor)*5)
+    .attr("height", (d) => (d.sec.riff)*5)
+    .attr("fill", "#f6b26b")
+}
 
 function updateFunctions() {
   var cnt = functionData.length
@@ -110,6 +162,8 @@ updateVotes();
 
 const socket = io()
 socket.on('connect', () => { console.log('connect', socket.id) })
+
+socket.on('logevent', updateLog)
 
 socket.on('demo:votes', (votes) => {
   voteData.forEach((o) => { o.votes = votes[o.id]; })

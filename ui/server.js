@@ -3,7 +3,7 @@ const app = express()
 const server = require('http').Server(app)
 const util = require('util')
 const fetch = require('node-fetch')
-
+const EventEmitter = require('events')
 
 // object matching destructuring inspired by https://apex.github.io/up/#getting_started
 const { 
@@ -15,8 +15,47 @@ const {
   HTTP_GATEWAY_SERVICE_PORT
 } = process.env
 
-// correlate fetch requests
-var fetch_count = 0
+var vote_post_cnt = 0  // to correlate fetch requests with responses
+const vote_post_endpoint = `http://${HTTP_GATEWAY_SERVICE_HOST}:${HTTP_GATEWAY_SERVICE_PORT}/requests/votes`
+
+if (!HTTP_GATEWAY_SERVICE_HOST) { console.log("WARNING: No HTTP_GATEWAY - writing votes to redis directly.") }
+
+// circular buffer of vote-counts every 2 seconds, recycled every 60s
+const aggregates = {
+  boot: new Array(30).fill(0),
+  framework: new Array(30).fill(0),
+  reactor: new Array(30).fill(0),
+  riff: new Array(30).fill(0),
+}
+
+// aggregates index scrolls from 0 to 30 and then back to 0
+var idx = 0;
+var tStart = Date.now()
+const em = new EventEmitter();
+
+// every 2 seconds, publish tallies from the last 2 seconds, and total from the last 60s.
+setInterval(() => {
+//function doit() {
+  em.emit('logevent', {
+    t: Date.now() - tStart,
+    "min": {
+      boot: aggregates.boot.reduce((s,v) => s+v),
+      framework: aggregates.framework.reduce((s,v) => s+v),
+      reactor: aggregates.reactor.reduce((s,v) => s+v),
+      riff: aggregates.riff.reduce((s,v) => s+v) },
+    "sec": {
+      boot: aggregates.boot[idx],
+      framework: aggregates.framework[idx],
+      reactor: aggregates.reactor[idx],
+      riff: aggregates.riff[idx] }
+  })
+  idx = (idx + 1) % 30
+  aggregates.boot[idx] = 0
+  aggregates.framework[idx] = 0
+  aggregates.reactor[idx] = 0
+  aggregates.riff[idx] = 0
+//}
+}, 2000)
 
 const redisLib = require("redis")
 const redisOpts = {host:REDIS_HOST, port:REDIS_PORT, auth_pass:REDIS_PASSWORD}
@@ -39,12 +78,19 @@ const io = require('socket.io')(server)
 io.on('connection', (socket) => { 
 
   redisWatch.on('pmessage', redisEvent)
+  em.on('logevent', logEvent)
+  
   socket.on('disconnect', function(){
-    redisWatch.removeListener('pmessage', redisEvent);
+    redisWatch.removeListener('pmessage', redisEvent)
+    em.removeListener('logevent', logEvent)
     console.log(`disconnect ${socket.id}`)
   })
 
   console.log(`connect ${socket.id}`)
+
+  function logEvent(evt) {
+    socket.emit('logevent', evt)
+  }
 
   socket.on('mouseevent', (evt) => { 
     redisDB.mset('demo:x', evt.x, 'demo:y', evt.y, (err) => {
@@ -54,20 +100,25 @@ io.on('connection', (socket) => {
   })
 
   socket.on('vote', (evt) => {
-//    redisDB.hincrby("demo:votes", evt, 1, (err) => {
-//      if (err) console.log('Error writing votes to redis' + err);
-//    })
-    const endpoint = `http://${HTTP_GATEWAY_SERVICE_HOST}:${HTTP_GATEWAY_SERVICE_PORT}/requests/votes`
-    const body = `{"${evt}":1, "_command":"increment"}`
-    fetch_count++
-    console.log('fetch', fetch_count, endpoint, body)
-    fetch(endpoint, {
-      method: 'POST',
-      body: body,
-      headers: { 'Content-Type': 'text/plain' }
-    })
-    .then(res => console.log(fetch_count, res.status))
-    .catch(err => console.log(fetch_count, err))
+    (aggregates[evt][idx])++;
+    //doit()
+
+    if (HTTP_GATEWAY_SERVICE_HOST) {
+      const body = `{"${evt}":1, "_command":"increment"}`
+      vote_post_cnt++
+      console.log('fetch', vote_post_cnt, vote_post_endpoint, body)
+      fetch(vote_post_endpoint, {
+        method: 'POST',
+        body: body,
+        headers: { 'Content-Type': 'text/plain' }
+      })
+      .then(res => console.log(vote_post_cnt, res.status))
+      .catch(err => console.log(vote_post_cnt, err))
+    } else {
+      redisDB.hincrby("demo:votes", evt, 1, (err) => {
+        if (err) console.log('Error writing votes to redis' + err);
+      })
+    }
   })
 
   socket.on('testscale', (evt) => {

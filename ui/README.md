@@ -30,8 +30,8 @@ scripts/install-redis
 change to the demo/functions/redis-writer directory
 ```
 ./mvnw clean package
-minikube apply -f .
-minikube apply -f runction-replica-writer
+kubectl apply -f .
+kubectl apply -f function-replicas-writer
 ```
 
 #### To build the ui docker image and install in k8s
