@@ -6,7 +6,11 @@
 
 <svg class="votes" viewBox="0 0 400 100"></svg>
 <svg class="functions"></svg>
-<svg class="log" viewBox="0 0 400 100"></svg>
+<svg class="log" viewBox="0 0 400 100">
+  <text class="topval" dx="350" dy="10"></text>
+</svg>
+
+
 &nbsp;<a href="test.html" target="_new">test</a>
 
 <script src="/js/d3.v4.min.js"></script>
@@ -26,14 +30,26 @@ var functionData = [
 var logData = [
 ]
 
+function getMaxVal() {
+  return logData.reduce((max,v) => {
+    var vtotal = v.sec.boot + v.sec.framework + v.sec.reactor + v.sec.riff
+    return vtotal > max ? vtotal : max;
+  }, 0)
+}
+
 function updateLog(evt) {
-  const max = 30
+  const maxcnt = 30
   var cnt = logData.push(evt)
-  if (cnt > max) { 
+  if (cnt > maxcnt) { 
     logData.shift() 
     cnt--
   }
-  var missing = max - cnt
+  var missing = maxcnt - cnt
+  var maxval = getMaxVal()
+  var scalefactor = ((~~(maxval / 20)) + 1)
+  var vscale = 5 / scalefactor
+  var topval = 20 * scalefactor
+  d3.select("text.topval").text(topval)
 
   var groups = d3.select("svg.log").selectAll("g")
     .data(logData,(d) => d.t)
@@ -42,6 +58,21 @@ function updateLog(evt) {
   groups.attr("transform", (d,i) => {
     return "translate("+ (((missing+i) * 10) + 50) +",0)"
   })
+
+  // very ugly but necessary for vertical auto-height scaling (same code as inserts)
+  groups.selectAll("rect.boot")
+    .attr("y", (d) => 100 - (d.sec.boot)*vscale)
+    .attr("height", (d) => (d.sec.boot)*vscale)
+  groups.selectAll("rect.framework")
+    .attr("y", (d) => 100 - (d.sec.framework + d.sec.boot)*vscale)
+    .attr("height", (d) => (d.sec.framework)*vscale)
+  groups.selectAll("rect.reactor")
+    .attr("y", (d) => 100 - (d.sec.reactor + d.sec.boot + d.sec.framework)*vscale)
+    .attr("height", (d) => (d.sec.reactor)*vscale)
+  groups.selectAll("rect.riff")
+    .attr("y", (d) => 100 - (d.sec.riff + d.sec.boot + d.sec.framework + d.sec.reactor)*vscale)
+    .attr("height", (d) => (d.sec.riff)*vscale)
+
   groups.exit().remove();
 
   var inserts = groups.enter().append("g")
@@ -50,28 +81,32 @@ function updateLog(evt) {
     })
 
   inserts.append("rect")
+    .attr("class", "boot")
     .attr("width", 8)
     .attr("x",0)
-    .attr("y", (d) => 100 - (d.sec.boot)*5)
-    .attr("height", (d) => (d.sec.boot)*5)
+    .attr("y", (d) => 100 - (d.sec.boot)*vscale)
+    .attr("height", (d) => (d.sec.boot)*vscale)
     .attr("fill", "#6db33f")
   inserts.append("rect")
+    .attr("class", "framework")
     .attr("width", 8)
     .attr("x",0)
-    .attr("y", (d) => 100 - (d.sec.framework + d.sec.boot)*5)
-    .attr("height", (d) => (d.sec.framework)*5)
+    .attr("y", (d) => 100 - (d.sec.framework + d.sec.boot)*vscale)
+    .attr("height", (d) => (d.sec.framework)*vscale)
     .attr("fill", "#0e9fda")
   inserts.append("rect")
+    .attr("class", "reactor")
     .attr("width", 8)
     .attr("x",0)
-    .attr("y", (d) => 100 - (d.sec.reactor + d.sec.boot + d.sec.framework)*5)
-    .attr("height", (d) => (d.sec.reactor)*5)
+    .attr("y", (d) => 100 - (d.sec.reactor + d.sec.boot + d.sec.framework)*vscale)
+    .attr("height", (d) => (d.sec.reactor)*vscale)
     .attr("fill", "#ea9999")
   inserts.append("rect")
+    .attr("class", "riff")
     .attr("width", 8)
     .attr("x",0)
-    .attr("y", (d) => 100 - (d.sec.riff + d.sec.boot + d.sec.framework + d.sec.reactor)*5)
-    .attr("height", (d) => (d.sec.riff)*5)
+    .attr("y", (d) => 100 - (d.sec.riff + d.sec.boot + d.sec.framework + d.sec.reactor)*vscale)
+    .attr("height", (d) => (d.sec.riff)*vscale)
     .attr("fill", "#f6b26b")
 }
 
@@ -141,6 +176,9 @@ function updateVotes() {
     .attr("transform", (d,i) => "translate("+ (i*100+50) +",50)")
     .on('click', (d,i) => {
       socket.emit('vote', d.id)
+    })
+    .on('mousemove', (d,i) => {
+      socket.emit('vote',  d.id)
     })
 
   newVoteButtons.append("circle")

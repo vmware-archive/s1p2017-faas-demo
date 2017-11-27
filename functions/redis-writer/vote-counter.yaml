@@ -2,6 +2,8 @@ apiVersion: projectriff.io/v1
 kind: Topic
 metadata:
   name: votes
+spec:
+  partitions: 3
 ---
 
 apiVersion: projectriff.io/v1

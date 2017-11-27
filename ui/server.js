@@ -39,10 +39,10 @@ setInterval(() => {
   em.emit('logevent', {
     t: Date.now() - tStart,
     "min": {
-      boot: aggregates.boot.reduce((s,v) => s+v),
-      framework: aggregates.framework.reduce((s,v) => s+v),
-      reactor: aggregates.reactor.reduce((s,v) => s+v),
-      riff: aggregates.riff.reduce((s,v) => s+v) },
+      boot: aggregates.boot.reduce((s,v) => s+v,0),
+      framework: aggregates.framework.reduce((s,v) => s+v,0),
+      reactor: aggregates.reactor.reduce((s,v) => s+v,0),
+      riff: aggregates.riff.reduce((s,v) => s+v,0) },
     "sec": {
       boot: aggregates.boot[idx],
       framework: aggregates.framework[idx],
