@@ -16,7 +16,7 @@ const {
 } = process.env
 
 var vote_post_cnt = 0  // to correlate fetch requests with responses
-const vote_post_endpoint = `http://${HTTP_GATEWAY_SERVICE_HOST}:${HTTP_GATEWAY_SERVICE_PORT}/requests/votes`
+const vote_post_endpoint = `http://${HTTP_GATEWAY_SERVICE_HOST}:${HTTP_GATEWAY_SERVICE_PORT}/messages/votes`
 
 if (!HTTP_GATEWAY_SERVICE_HOST) { console.log("WARNING: No HTTP_GATEWAY - writing votes to redis directly.") }
 
