@@ -1,17 +1,18 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
+<html>
+<head>
+<title>riff demo - S1P 2017</title>
 <style>
 @import url("/css/style.css");
 </style>
-
+</head>
+<body>
 <svg class="votes" viewBox="0 0 400 100"></svg>
 <svg class="functions"></svg>
 <svg class="log" viewBox="0 0 400 100">
   <text class="topval" dx="350" dy="10"></text>
 </svg>
-
-
-&nbsp;<a href="test.html" target="_new">test</a>
 
 <script src="/js/d3.v4.min.js"></script>
 <script src="/socket.io/socket.io.js"></script>
@@ -237,3 +238,5 @@ on(window, 'beforeunload', () => {
 function el(id) { return document.getElementById(id); }
 function on(el,evt,fn) { return el.addEventListener(evt, fn); }
 </script>
+</body>
+</html>

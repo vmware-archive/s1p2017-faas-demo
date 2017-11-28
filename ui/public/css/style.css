@@ -40,8 +40,8 @@ svg {
 }
 
 .log text.topval {
-  font-size: 10px;
-  fill: #777;
+  font-size: 8px;
+  fill: #ccc;
 }
 .functions text.label {
   font-size: 18px;

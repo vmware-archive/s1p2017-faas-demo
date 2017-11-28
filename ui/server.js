@@ -49,6 +49,8 @@ setInterval(() => {
       reactor: aggregates.reactor[idx],
       riff: aggregates.riff[idx] }
   })
+
+  // start a new 2s aggregate with zero'd counts
   idx = (idx + 1) % 30
   aggregates.boot[idx] = 0
   aggregates.framework[idx] = 0
