@@ -1,4 +1,4 @@
-FROM projectriff/java-function-invoker:0.0.1-SNAPSHOT
+FROM projectriff/java-function-invoker:0.0.1
 ARG FUNCTION_JAR=/functions/redis-writer-1.0.0.jar
 ARG FUNCTION_CLASS=functions.RedisWriter
 ADD target/redis-writer-1.0.0.jar $FUNCTION_JAR
