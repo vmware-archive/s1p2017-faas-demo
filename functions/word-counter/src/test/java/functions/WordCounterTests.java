@@ -9,11 +9,11 @@ import org.junit.Test;
 
 import reactor.core.publisher.Flux;
 
-public class CounterTests {
+public class WordCounterTests {
 
 	@Test
 	public void test() {
-		Counter counter = new Counter();
+		WordCounter counter = new WordCounter();
 		Flux<String> words = Flux.just(1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 5).map(i -> ""+i);
 		List<Map<String, Integer>> results = counter.apply(words).collectList().block();
 		assertEquals(2, results.size());

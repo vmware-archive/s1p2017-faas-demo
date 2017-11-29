@@ -13,10 +13,10 @@ metadata:
 apiVersion: projectriff.io/v1
 kind: Function
 metadata:
-  name: counter
+  name: word-counter
 spec:
   protocol: http
   input: words
   output: counts
   container:
-    image: projectriff/counter:1.0.0
+    image: projectriff/word-counter:1.0.0
