@@ -40,7 +40,11 @@ function getMaxVal() {
 
 function updateLog(evt) {
   const maxcnt = 30
-  var cnt = logData.push(evt)
+  evt.boot = evt.boot || 0;
+  evt.framework = evt.framework || 0;
+  evt.reactor = evt.reactor || 0;
+  evt.riff = evt.riff || 0;
+  var cnt = logData.push( {t:Date.now(), sec:evt} )
   if (cnt > maxcnt) { 
     logData.shift() 
     cnt--
