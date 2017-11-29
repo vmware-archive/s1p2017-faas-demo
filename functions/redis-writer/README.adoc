@@ -8,15 +8,22 @@
 
 === Build the Docker container for the function code
 
-ensure riff is running and the `faas` script from `project/riff` is on your `PATH`
+ensure riff is running and the `riff` script from `project/riff` is on your `PATH`
 
 from within the `functions/redis-writer` directory execute:
 
 ```
 ./mvnw clean package
 eval $(minikube docker-env)
-faas build -v 1.0.0
-faas apply
+riff build -v 1.0.0
+riff apply
+```
+
+to run an instance of `redis-writer` that subscribes to the `votes` topic and
+produces aggregates for every 2 second interval into a "demo:votes-log" list:
+
+```
+riff apply -f vote-interval-writer/
 ```
 
 if you'd also like to run an instance of `redis-writer` that subscribes to the
@@ -24,5 +31,5 @@ if you'd also like to run an instance of `redis-writer` that subscribes to the
 "demo:function-replicas" hash:
 
 ```
-faas apply -f function-replicas-writer
+riff apply -f function-replicas-writer
 ```
