@@ -7,7 +7,7 @@ Defaults are localhost, 6379, and no auth.
 Current votecounts are displayed by monitoring the `demo:votes` hash in redis.
 
 Votes are posted to the votes topic in Riff via the http-gateway service configured 
-at `HTTP_GATEWAY_SERVICE_HOST` and `HTTP_GATEWAY_SERVICE_PORT` (otionally prefixed with
+at `HTTP_GATEWAY_SERVICE_HOST` and `HTTP_GATEWAY_SERVICE_PORT` (optionally prefixed with
 a helm deploy name). If no gateway is found, votes are incremented redis directly. 
 
 Function replica counts are monitored from redis hash `demo:function-replicas`.
