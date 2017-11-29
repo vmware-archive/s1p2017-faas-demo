@@ -63,7 +63,7 @@ var idx = 0;
 
   redisDB.rpush('demo:votes-window', JSON.stringify(windowdata), (err) => {
     if (err) console.log('Error writing votes-window to redis' + err);
-  }) */
+  })
 
   idx = (idx + 1) % 30
   aggregates.boot[idx] = 0
@@ -71,7 +71,7 @@ var idx = 0;
   aggregates.reactor[idx] = 0
   aggregates.riff[idx] = 0
 
-}, 2000)
+}, 2000)  */
 
 const redisLib = require("redis")
 const redisOpts = {host:REDIS_HOST, port:REDIS_PORT, auth_pass:REDIS_PASSWORD}
