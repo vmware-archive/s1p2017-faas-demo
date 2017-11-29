@@ -11,14 +11,14 @@ const {
   REDIS_HOST,
   REDIS_PORT,
   REDIS_PASSWORD,
-  HTTP_GATEWAY_SERVICE_HOST,
-  HTTP_GATEWAY_SERVICE_PORT
+  DEMO_RIFF_HTTP_GATEWAY_SERVICE_HOST,
+  DEMO_RIFF_HTTP_GATEWAY_SERVICE_PORT
 } = process.env
 
 var vote_post_cnt = 0  // to correlate fetch requests with responses
-const vote_post_endpoint = `http://${HTTP_GATEWAY_SERVICE_HOST}:${HTTP_GATEWAY_SERVICE_PORT}/messages/votes`
+const vote_post_endpoint = `http://${DEMO_RIFF_HTTP_GATEWAY_SERVICE_HOST}:${DEMO_RIFF_HTTP_GATEWAY_SERVICE_PORT}/messages/votes`
 
-if (!HTTP_GATEWAY_SERVICE_HOST) { console.log("WARNING: No HTTP_GATEWAY - writing votes to redis directly.") }
+if (!DEMO_RIFF_HTTP_GATEWAY_SERVICE_HOST) { console.log("WARNING: No HTTP_GATEWAY - writing votes to redis directly.") }
 
 // circular buffer of vote-counts every 2 seconds, recycled every 60s
 const aggregates = {
@@ -105,7 +105,7 @@ io.on('connection', (socket) => {
     (aggregates[evt][idx])++;
     //doit()
 
-    if (HTTP_GATEWAY_SERVICE_HOST) {
+    if (DEMO_RIFF_HTTP_GATEWAY_SERVICE_HOST) {
       const body = `{"${evt}":1, "_command":"increment"}`
       vote_post_cnt++
       console.log('fetch', vote_post_cnt, vote_post_endpoint, body)
