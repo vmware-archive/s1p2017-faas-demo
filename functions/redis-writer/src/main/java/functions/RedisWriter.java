@@ -25,6 +25,9 @@ import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 /**
  * @author Mark Fisher
  */
@@ -36,14 +39,21 @@ public class RedisWriter implements Function<Map<String, Object>, String> {
 
 	private String hashKey;
 
+	private String listKey;
+
 	private Command defaultCommand = Command.set;
 
 	private final RedisTemplate<String, String> template = new RedisTemplate<>();
+
+	private final ObjectMapper mapper = new ObjectMapper();
 
 	@PostConstruct
 	public void init() {
 		if (System.getenv("HASH_KEY") != null) {
 			this.hashKey = System.getenv("HASH_KEY");
+		}
+		if (System.getenv("LIST_KEY") != null) {
+			this.listKey = System.getenv("LIST_KEY");
 		}
 		if (System.getenv("DEFAULT_COMMAND") != null) {
 			try {
@@ -80,6 +90,15 @@ public class RedisWriter implements Function<Map<String, Object>, String> {
 				throw new IllegalArgumentException(
 						"unsupported command: " + input.get(COMMAND_KEY).toString());
 			}
+		}
+		if (this.listKey != null) {
+			try {
+				this.template.boundListOps(this.listKey).rightPush(this.mapper.writeValueAsString(input));
+			}
+			catch (JsonProcessingException e) {
+				e.printStackTrace();
+			}
+			return "done";
 		}
 		for (Map.Entry<String, Object> entry : input.entrySet()) {
 			String key = entry.getKey();

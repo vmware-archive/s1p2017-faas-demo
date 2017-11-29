@@ -18,5 +18,11 @@ spec:
   protocol: pipes
   input: votes
   output: vote-interval-counts
+  idleTimeoutMs: 30000
   container:
     image: projectriff/vote-interval-counter:1.0.0
+    env:
+    - name: SPRING_CLOUD_STREAM_BINDER_FILE_PREFIX
+      value: /pipes
+    - name: SPRING_APPLICATION_JSON
+      value: '{"logging.level.org.springframework.cloud.stream.binder.file":"DEBUG", "spring.cloud.stream.bindings.output.content-type":"application/json"}'
