@@ -10,15 +10,22 @@ const {
   PORT = 8080,
   REDIS_HOST,
   REDIS_PORT,
-  REDIS_PASSWORD,
-  HTTP_GATEWAY_SERVICE_HOST,
-  HTTP_GATEWAY_SERVICE_PORT
+  REDIS_PASSWORD
 } = process.env
 
-var vote_post_cnt = 0  // to correlate fetch requests with responses
-const vote_post_endpoint = `http://${HTTP_GATEWAY_SERVICE_HOST}:${HTTP_GATEWAY_SERVICE_PORT}/messages/votes`
+function envFind(s) {
+  for (nme in process.env) {
+    if((new RegExp(s)).test(nme)) return process.env[nme]; // unsafe! no regexp escaping on s
+  }
+}
 
-if (!HTTP_GATEWAY_SERVICE_HOST) { console.log("WARNING: No HTTP_GATEWAY - writing votes to redis directly.") }
+const GATEWAY_HOST = envFind('HTTP_GATEWAY_SERVICE_HOST')
+const GATEWAY_PORT = envFind('HTTP_GATEWAY_SERVICE_PORT') || 80
+
+var vote_post_cnt = 0  // to correlate fetch requests with responses
+const vote_post_endpoint = `http://${GATEWAY_HOST}:${GATEWAY_PORT}/messages/votes`
+
+if (!GATEWAY_HOST) { console.log("WARNING: No HTTP_GATEWAY - writing votes to redis directly.") }
 
 // circular buffer of vote-counts every 2 seconds, recycled every 60s
 const aggregates = {
@@ -105,16 +112,16 @@ io.on('connection', (socket) => {
     (aggregates[evt][idx])++;
     //doit()
 
-    if (HTTP_GATEWAY_SERVICE_HOST) {
+    if (GATEWAY_HOST) {
       const body = `{"${evt}":1, "_command":"increment"}`
       vote_post_cnt++
-      console.log('fetch', vote_post_cnt, vote_post_endpoint, body)
+      // console.log('fetch', vote_post_cnt, vote_post_endpoint, body)
       fetch(vote_post_endpoint, {
         method: 'POST',
         body: body,
         headers: { 'Content-Type': 'text/plain' }
       })
-      .then(res => console.log(vote_post_cnt, res.status))
+      // .then(res => console.log(vote_post_cnt, res.status))
       .catch(err => console.log(vote_post_cnt, err))
     } else {
       redisDB.hincrby("demo:votes", evt, 1, (err) => {
