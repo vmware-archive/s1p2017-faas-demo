@@ -19,8 +19,18 @@ riff build -v 1.0.0
 riff apply
 ```
 
-to run an instance of `redis-writer` that subscribes to the `votes` topic and
-produces aggregates for every 2 second interval into a "demo:votes-log" list:
+to run a function that subscribes to the `votes` topic and produces aggregates
+for every 2 second interval into a `vote-interval-counts` topic, change to the
+`vote-interval-counter` sibling directory and execute:
+
+```
+./mvnw clean package
+riff build -v 1.0.0
+riff apply
+```
+
+then (back in this dir) add a `redis-writer` that subscribes to that
+`vote-interval-counts` topic and writes each entry into "demo:votes-log" list:
 
 ```
 riff apply -f vote-interval-writer/
