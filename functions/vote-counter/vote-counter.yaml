@@ -23,10 +23,6 @@ spec:
   container:
     image: projectriff/vote-counter:0.0.1
     env:
-    - name: HASH_KEY
-      value: demo:votes
-    - name: REDIS_HOST
-      value: counters-redis.default.svc.cluster.local
     - name: REDIS_PASSWORD
       valueFrom:
         secretKeyRef:

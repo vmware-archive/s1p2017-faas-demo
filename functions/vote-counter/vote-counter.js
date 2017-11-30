@@ -6,8 +6,8 @@ if (!{boot:1, framework:1, reactor:1, riff:1}.hasOwnProperty(vote)) {
 }
 
 const redisOpts = {
-  host:process.env.REDIS_HOST, 
-  port:process.env.REDIS_PORT,
+  host:process.env.COUNTERS_REDIS_SERVICE_HOST,
+  port:process.env.COUNTERS_REDIS_SERVICE_PORT,
   auth_pass:process.env.REDIS_PASSWORD
 }
 
