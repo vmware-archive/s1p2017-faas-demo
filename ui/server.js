@@ -110,11 +110,10 @@ io.on('connection', (socket) => {
   })
 
   socket.on('vote', (evt) => {
-    (aggregates[evt][idx])++;
-    //doit()
+    //(aggregates[evt][idx])++;
 
     if (GATEWAY_HOST) {
-      const body = `{"${evt}":1, "_command":"increment"}`
+      const body = evt
       vote_post_cnt++
       // console.log('fetch', vote_post_cnt, vote_post_endpoint, body)
       fetch(vote_post_endpoint, {
