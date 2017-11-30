@@ -1,0 +1,34 @@
+apiVersion: projectriff.io/v1
+kind: Topic
+metadata:
+  name: votes
+spec:
+  partitions: 10
+---
+apiVersion: projectriff.io/v1
+kind: Topic
+metadata:
+  name: counted-votes
+spec:
+  partitions: 1
+---
+apiVersion: projectriff.io/v1
+kind: Function
+metadata:
+  name: vote-counter
+spec:
+  protocol: http
+  input: votes
+  output: counted-votes
+  container:
+    image: projectriff/vote-counter:0.0.1
+    env:
+    - name: HASH_KEY
+      value: demo:votes
+    - name: REDIS_HOST
+      value: counters-redis.default.svc.cluster.local
+    - name: REDIS_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: counters-redis
+          key: redis-password
