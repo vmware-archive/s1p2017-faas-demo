@@ -7,7 +7,7 @@ metadata:
 apiVersion: projectriff.io/v1
 kind: Topic
 metadata:
-  name: vote-interval-counts
+  name: function-replicas
 ---
 
 apiVersion: projectriff.io/v1
@@ -17,7 +17,7 @@ metadata:
 spec:
   protocol: pipes
   input: votes
-  output: vote-interval-counts
+  output: function-replicas
   idleTimeoutMs: 30000
   container:
     image: projectriff/vote-interval-counter:1.0.0

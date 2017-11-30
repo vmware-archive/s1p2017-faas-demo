@@ -13,7 +13,7 @@ import reactor.util.function.Tuples;
 /**
  * @author Mark Fisher
  */
-public class VoteIntervalCounter implements Function<Flux<Map<String, Object>>, Flux<Map<String,Integer>>> {
+public class VoteIntervalCounter implements Function<Flux<Map<String, Object>>, Flux<Map<String, Object>>> {
 
 	private Function<Map.Entry<String, Object>, Tuple2<String, Integer>> intEntry = entry -> {
 		try {
@@ -23,12 +23,19 @@ public class VoteIntervalCounter implements Function<Flux<Map<String, Object>>, 
 		}
 	};
 
-	public Flux<Map<String, Integer>> apply(Flux<Map<String, Object>> votes) {
+	private static Map<String, Object> createMap() {
+		Map<String, Object> map = new HashMap<>();
+		map.put("_list", "demo:votes-log");
+		map.put("_time", System.currentTimeMillis());
+		return map;
+	}
+
+	public Flux<Map<String, Object>> apply(Flux<Map<String, Object>> votes) {
 		return votes.concatMap(map -> Flux.fromStream(map.entrySet().stream().map(intEntry).filter(Objects::nonNull)))
 				.window(Duration.ofSeconds(2))
-				.concatMap(w -> w.collect(HashMap::new,
-						(Map<String, Integer> map, Tuple2<String, Integer> next) ->
-							map.compute(next.getT1(), (k,v) -> v != null ? v + next.getT2() : next.getT2())
+				.concatMap(w -> w.collect(VoteIntervalCounter::createMap,
+						(Map<String, Object> map, Tuple2<String, Integer> next) ->
+							map.compute(next.getT1(), (k,v) -> v != null ? (int)v + next.getT2() : next.getT2())
 						));
 	}
 }

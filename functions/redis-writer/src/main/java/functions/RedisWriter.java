@@ -35,11 +35,13 @@ public class RedisWriter implements Function<Map<String, Object>, String> {
 
 	private static final String COMMAND_KEY = "_command";
 
+	private static final String LIST_KEY = "_list";
+
+	private static final String HASH_KEY = "_hash";
+
 	private enum Command { set, increment }
 
-	private String hashKey;
-
-	private String listKey;
+	private String defaultHashKey = null;
 
 	private Command defaultCommand = Command.set;
 
@@ -49,11 +51,8 @@ public class RedisWriter implements Function<Map<String, Object>, String> {
 
 	@PostConstruct
 	public void init() {
-		if (System.getenv("HASH_KEY") != null) {
-			this.hashKey = System.getenv("HASH_KEY");
-		}
-		if (System.getenv("LIST_KEY") != null) {
-			this.listKey = System.getenv("LIST_KEY");
+		if (System.getenv("DEFAULT_HASH_KEY") != null) {
+			this.defaultHashKey = System.getenv("DEFAULT_HASH_KEY");
 		}
 		if (System.getenv("DEFAULT_COMMAND") != null) {
 			try {
@@ -81,6 +80,16 @@ public class RedisWriter implements Function<Map<String, Object>, String> {
 	}
 
 	public String apply(Map<String, Object> input) {
+		if (input.get(LIST_KEY) != null) {
+			try {
+				String listKey = input.remove(LIST_KEY).toString();
+				this.template.boundListOps(listKey).rightPush(this.mapper.writeValueAsString(input));
+			}
+			catch (JsonProcessingException e) {
+				e.printStackTrace();
+			}
+			return "done";
+		}
 		Command command = this.defaultCommand;
 		if (input.containsKey(COMMAND_KEY)) {
 			try {
@@ -91,15 +100,7 @@ public class RedisWriter implements Function<Map<String, Object>, String> {
 						"unsupported command: " + input.get(COMMAND_KEY).toString());
 			}
 		}
-		if (this.listKey != null) {
-			try {
-				this.template.boundListOps(this.listKey).rightPush(this.mapper.writeValueAsString(input));
-			}
-			catch (JsonProcessingException e) {
-				e.printStackTrace();
-			}
-			return "done";
-		}
+		String hashKey = (input.get(HASH_KEY) != null) ? input.remove(HASH_KEY).toString() : this.defaultHashKey;
 		for (Map.Entry<String, Object> entry : input.entrySet()) {
 			String key = entry.getKey();
 			if (COMMAND_KEY.equals(key)) {
@@ -123,14 +124,14 @@ public class RedisWriter implements Function<Map<String, Object>, String> {
 					}
 				}
 			}
-			else if (this.hashKey != null) {
+			else if (hashKey != null) {
 				switch (command) {
 				case increment:
-					this.template.boundHashOps(this.hashKey).increment(key,
+					this.template.boundHashOps(hashKey).increment(key,
 							Long.parseLong(value.toString()));
 					break;
 				default:
-					this.template.boundHashOps(this.hashKey).put(key, value.toString());
+					this.template.boundHashOps(hashKey).put(key, value.toString());
 					break;
 				}
 			}
