@@ -25,7 +25,7 @@ public class VoteStreamProcessor implements Function<Flux<String>, Flux<Map<Stri
 	public Flux<Map<String, Object>> windows(Flux<String> words) {
 		return words.window(Duration.ofSeconds(60), Duration.ofSeconds(2))
 				.concatMap(w -> w.collect(VoteAggregate::new, VoteAggregate::sum)
-				.map(VoteAggregate::windowMap), 64);
+				.map(VoteAggregate::windowMap), Integer.MAX_VALUE);
 	}
 
 	class VoteAggregate {
