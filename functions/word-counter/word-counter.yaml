@@ -7,7 +7,7 @@ metadata:
 apiVersion: projectriff.io/v1
 kind: Topic
 metadata:
-  name: counts
+  name: word-counts
 ---
 
 apiVersion: projectriff.io/v1
@@ -17,7 +17,7 @@ metadata:
 spec:
   protocol: http
   input: words
-  output: counts
+  output: word-counts
   container:
     image: projectriff/word-counter:1.0.0
     env:

@@ -3,6 +3,9 @@ module.exports = (input_string) => {
 try { var input = JSON.parse(input_string) } 
 catch(err) { return err; }
 
+if (Array.isArray(input)) { input = input[0] }
+if (typeof input !== 'object') return "Error, input is not a JSON object.";
+
 var { DEFAULT_HASH_KEY, DEFAULT_COMMAND } = process.env
 
 var op = input._operation || DEFAULT_COMMAND 
