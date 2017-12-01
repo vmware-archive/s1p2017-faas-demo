@@ -19,8 +19,8 @@ function envFind(s) {
   }
 }
 
-const GATEWAY_HOST = envFind('HTTP_GATEWAY_SERVICE_HOST')
-const GATEWAY_PORT = envFind('HTTP_GATEWAY_SERVICE_PORT') || 80
+const GATEWAY_HOST = envFind('HTTP_GATEWAY_SERVICE_HOST$')
+const GATEWAY_PORT = envFind('HTTP_GATEWAY_SERVICE_PORT$') || 80
 
 var vote_post_cnt = 0  // to correlate fetch requests with responses
 const vote_post_endpoint = `http://${GATEWAY_HOST}:${GATEWAY_PORT}/messages/votes`

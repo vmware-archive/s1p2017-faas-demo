@@ -20,6 +20,7 @@ spec:
   protocol: http
   input: votes
   output: counted-votes
+  idleTimeoutMs: 60000
   container:
     image: projectriff/vote-counter:0.0.1
     env:
