@@ -1,5 +1,4 @@
-FROM projectriff/java-function-invoker:0.0.1
-ARG FUNCTION_JAR=/functions/redis-writer-1.0.0.jar
-ARG FUNCTION_CLASS=functions.RedisWriter
-ADD target/redis-writer-1.0.0.jar $FUNCTION_JAR
-ENV FUNCTION_URI file://${FUNCTION_JAR}?handler=${FUNCTION_CLASS}
+FROM projectriff/node-function-invoker:0.0.2-snapshot
+RUN npm install redis@2.8.0 --production
+ENV FUNCTION_URI /functions/function.js
+ADD redis-writer.js ${FUNCTION_URI}

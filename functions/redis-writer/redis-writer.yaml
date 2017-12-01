@@ -17,8 +17,6 @@ spec:
     env:
     - name: DEFAULT_HASH_KEY
       value: demo:function-replicas
-    - name: REDIS_HOST
-      value: counters-redis.default.svc.cluster.local
     - name: REDIS_PASSWORD
       valueFrom:
         secretKeyRef:
