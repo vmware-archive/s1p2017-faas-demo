@@ -9,7 +9,7 @@
 </head>
 <body>
 <svg class="votes" viewBox="0 0 400 100"></svg>
-<svg class="functions"></svg>
+<svg class="functions" viewBox="0 0 400 75"></svg>
 <svg class="log" viewBox="0 0 400 100">
   <text class="topval" dx="350" dy="10"></text>
 </svg>
@@ -117,10 +117,10 @@ function updateLog(evt) {
 
 function updateFunctions() {
   var cnt = functionData.length
-  var dy = 40
-  var gap = 10
-  var height = cnt * (dy + gap)
-  var width = d3.select("body").node().offsetWidth
+  var gap = 10 / cnt
+  var dy = 75 / cnt - gap
+  var height = 75
+  var width = 400
 
   var svg = d3.select("svg.functions")
     .attr("height", height)
@@ -135,7 +135,7 @@ function updateFunctions() {
   var deletes = groups.exit().remove()
 
   var inserts = groups.enter().append("g")
-    .attr("transform", (d,i) => "translate(0,"+ (i * (dy + gap)) +")")
+    .attr("transform", (d,i) => "translate(4,"+ ((i * (dy + gap)) + gap) +")")
 
   inserts.append("rect")
     .attr("height", dy)
@@ -152,18 +152,24 @@ function updateFunctions() {
     .text((d) => d.id)
     .attr("dx", (d) => dx(d.replicas) + 4)
     .attr("dy", dy - 4)
+    .on('click', (d,i) => {
+      socket.emit('testscale', { [d.id]: "delete" })
+     })
 
   // updates
-  groups.attr("transform", (d,i) => "translate(0,"+ (i * (dy + gap)) +")")
+  groups.attr("transform", (d,i) => "translate(4,"+ ((i * (dy + gap)) + gap) +")")
 
   groups.selectAll("rect")
     .attr("width", (d) => dx(d.replicas))
+    .attr("height", dy)
 
   groups.selectAll("text.scale")
     .text((d) => d.replicas)
+    .attr("dy", dy - 4)
 
   groups.selectAll("text.label")
     .attr("dx", (d) => dx(d.replicas) + 2)
+    .attr("dy", dy - 4)
 }
 
 updateFunctions()
@@ -215,7 +221,7 @@ socket.on('demo:votes', (votes) => {
 
 socket.on('demo:function-replicas', (fns) => {
   fns = fns || {}
-  functionData.forEach((obj, i) => {
+  functionData.slice().forEach((obj, i) => {
     if (fns.hasOwnProperty(obj.id)) {
       obj.replicas = fns[obj.id] // update existing data
       delete fns[obj.id] // and remove from input hash

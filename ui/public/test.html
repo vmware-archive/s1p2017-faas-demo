@@ -13,6 +13,11 @@ scale = <span id="redis-scale">?</span>
   <li><a href="javascript:" id="testfn1-down">scale down</a></li>
   <li><a href="javascript:" id="testfn1-delete">delete</a></li>
 </ul>
+<ul>
+  <li><a href="javascript:" id="testfn2-up">scale up 2</a>
+  <li><a href="javascript:" id="testfn2-down">scale down 2</a></li>
+  <li><a href="javascript:" id="testfn2-delete">delete 2</a></li>
+</ul>
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
@@ -51,6 +56,23 @@ on(el('testfn1-down'), 'click', (evt) => {
 
 on(el('testfn1-delete'), 'click', (evt) => {
   socket.emit('testscale', { testfn1: "delete" })
+  return true;
+})
+
+on(el('testfn2-up'), 'click', (evt) => {
+  var val = testobj.testfn2 ? +testobj.testfn2 + 1 : 1
+  socket.emit('testscale', { testfn2: val })
+  return true;
+})
+
+on(el('testfn2-down'), 'click', (evt) => {
+  var val = +testobj.testfn2 > 0 ? +testobj.testfn2 - 1 : 0
+  socket.emit('testscale', { testfn2: val })
+  return true;
+})
+
+on(el('testfn2-delete'), 'click', (evt) => {
+  socket.emit('testscale', { testfn2: "delete" })
   return true;
 })
 

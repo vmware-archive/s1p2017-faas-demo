@@ -6,7 +6,7 @@ body {
 svg {
   width: 100%;
   height: auto;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #eef;
 }
 
 .vote-button {
@@ -35,7 +35,7 @@ svg {
 }
 
 .functions text.scale {
-  font-size: 18px;
+  font-size: 12px;
   fill: #fff;
 }
 
@@ -44,6 +44,7 @@ svg {
   fill: #ccc;
 }
 .functions text.label {
-  font-size: 18px;
+  font-size: 12px;
   fill: #444;
+  cursor: pointer;
 }
