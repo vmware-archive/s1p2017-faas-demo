@@ -1,26 +1,21 @@
 apiVersion: projectriff.io/v1
 kind: Topic
 metadata:
-  name: counted-votes
----
-
-apiVersion: projectriff.io/v1
-kind: Topic
-metadata:
   name: function-replicas
 ---
 
 apiVersion: projectriff.io/v1
 kind: Function
 metadata:
-  name: vote-slider-counter
+  name: vote-stream-processor
 spec:
   protocol: pipes
-  input: counted-votes
+  input: votes
   output: function-replicas
-  idleTimeoutMs: 30000
+  maxReplicas: 1
+  idleTimeoutMs: 60000
   container:
-    image: projectriff/vote-slider-counter:1.0.0
+    image: projectriff/vote-stream-processor:1.0.0
     env:
     - name: SPRING_CLOUD_STREAM_BINDER_FILE_PREFIX
       value: /pipes
