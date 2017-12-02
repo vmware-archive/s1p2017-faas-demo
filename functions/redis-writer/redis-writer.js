@@ -2,11 +2,11 @@ module.exports = (input_object) => {
 
 const util = require('util');
 
-if (typeof input_object === 'string') {
-  try { input = JSON.parse(input_object) }
-  catch(err) { return `Error parsing input string "${input_object}": ${err}`; }
-} else {
-  input = input_object 
+var input = input_object;
+
+if (typeof input === 'string') {
+  try { input = JSON.parse(input) }
+  catch(err) { return `Error parsing input string "${input}": ${err}`; }
 }
 
 if (Array.isArray(input)) { input = input[0] }
