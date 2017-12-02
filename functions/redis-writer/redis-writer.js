@@ -1,7 +1,13 @@
-module.exports = (input_string) => {
+module.exports = (input_object) => {
 
-try { var input = JSON.parse(input_string) } 
-catch(err) { return err; }
+const util = require('util');
+
+var input = input_object;
+
+if (typeof input === 'string') {
+  try { input = JSON.parse(input) }
+  catch(err) { return `Error parsing input string "${input}": ${err}`; }
+}
 
 if (Array.isArray(input)) { input = input[0] }
 if (typeof input !== 'object') return "Error, input is not a JSON object.";
@@ -52,5 +58,5 @@ else
 
 function redisErr(err) { if (err) { console.log(err) }}
 
-return input_string;
+return util.inspect(input_object); // return complete input_object as a string for observability
 } 
