@@ -14,6 +14,7 @@
   <text class="topval" dx="350" dy="10"></text>
 </svg>
 
+<script src="/js/underscore.js"></script>
 <script src="/js/d3.v4.min.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 <script>
@@ -26,6 +27,8 @@ const voteData = [
 ];
 
 var functionData = [
+{id:"testfn1", replicas:8},
+{id:"testfn2", replicas:1},
 ]
 
 var logData = [
@@ -115,61 +118,71 @@ function updateLog(evt) {
     .attr("fill", "#f6b26b")
 }
 
+const scaleData = [1,2,3,4,5,6,7,8,9,10];
+
+(function drawScale(x,y,dx,dy) {
+  var scale = d3.select("svg.functions").selectAll("g.scale")
+    .data(scaleData, (d) => d)
+  scale.enter().append('text')
+    .attr("class", "scale")
+    .attr("dx", (d,i) => x + (i * dx))
+    .attr("dy", y + dy)
+    .text((d) => d)
+  scale.exit().remove()
+})(44,0,15,13)
+
 function updateFunctions() {
   var cnt = functionData.length
-  var gap = 10 / cnt
-  var dy = 75 / cnt - gap
-  var height = 75
-  var width = 400
+  // bars
+  var leftmargin = 40
+  var vgap = 2
+  var dy = 16
+  var dx = 160
 
+  // lights
+  var leddx = 4
+  var ledgap = 1
   var svg = d3.select("svg.functions")
-    .attr("height", height)
 
-  var dx = d3.scaleLinear()
-    .domain([0, 20]) // d3.max(functionData, (d)=>d.replicas)+1])
-    .range([0, width])
-
-  var groups = svg.selectAll("g")
+  var bars = svg.selectAll("g.bar")
     .data(functionData, (d) => d.id)
+  var deletes = bars.exit().remove()
 
-  var deletes = groups.exit().remove()
-
-  var inserts = groups.enter().append("g")
-    .attr("transform", (d,i) => "translate(4,"+ ((i * (dy + gap)) + gap) +")")
+  var inserts = bars.enter().append("g")
+    .attr("class", "bar")
+    .attr("transform", (d,i) => "translate(" + leftmargin + "," +(((i + 0.8) * (dy + vgap)) + vgap) +")")
+    .on('click', (d,i) => { socket.emit('testscale', { [d.id]: "delete" })})
 
   inserts.append("rect")
-    .attr("height", dy)
-    .attr("width", (d) => dx(d.replicas))
+    .attr("class", "bg").attr("height", dy).attr("width", dx * 2)
 
-  inserts.append("text")
-    .attr("class", "scale")
-    .text((d) => d.replicas)
-    .attr("dx", 4)
-    .attr("dy", dy - 4)
+  _.times(31, (j) => {
+    inserts.append("rect")
+      .attr("class", (d,i) => ledClass(j, d.replicas))
+      .attr("x", j * (leddx + ledgap))
+      .attr("y", 2)
+      .attr("height", dy - 4)
+      .attr("width", leddx)
+  })
 
   inserts.append("text")
     .attr("class", "label")
-    .text((d) => d.id)
-    .attr("dx", (d) => dx(d.replicas) + 4)
-    .attr("dy", dy - 4)
-    .on('click', (d,i) => {
-      socket.emit('testscale', { [d.id]: "delete" })
-     })
+    .text((d) => (d.replicas > 10 ? d.replicas + " " : "") + d.id)
+    .attr("dx", dx)
+    .attr("dy", dy - 5)
 
   // updates
-  groups.attr("transform", (d,i) => "translate(4,"+ ((i * (dy + gap)) + gap) +")")
+  bars.attr("transform", (d,i) => "translate(" + leftmargin + "," +(((i + 0.8) * (dy + vgap)) + vgap) +")")
 
-  groups.selectAll("rect")
-    .attr("width", (d) => dx(d.replicas))
-    .attr("height", dy)
+  bars.selectAll("rect.led")
+    .attr("class", (d,i) => ledClass(i, d.replicas))
 
-  groups.selectAll("text.scale")
-    .text((d) => d.replicas)
-    .attr("dy", dy - 4)
+  bars.selectAll("text.label")
+   .text((d) => (d.replicas > 10 ? d.replicas + " " : "") + d.id)
 
-  groups.selectAll("text.label")
-    .attr("dx", (d) => dx(d.replicas) + 2)
-    .attr("dy", dy - 4)
+  function ledClass(n, level) {
+    return "led " + (level > 10 && n === 30 ? "red" : (n >= (3 * level) ? "off" : "on"))
+  }
 }
 
 updateFunctions()

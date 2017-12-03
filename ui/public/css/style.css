@@ -6,7 +6,6 @@ body {
 svg {
   width: 100%;
   height: auto;
-  border-bottom: 1px solid #eef;
 }
 
 .vote-button {
@@ -30,21 +29,45 @@ svg {
   font-size:20px;
 }
 
-.functions rect {
-  fill: #bbb;
+svg.functions {
+  background-color: #888;
+}
+
+.functions g {
+  cursor: pointer;
+}
+
+.functions rect.bg {
+  fill: #888;
+}
+
+.functions rect.led {
+  stroke: #353;
+  stroke-width: 0.3;
+  transition: 500ms;
+}
+
+.functions rect.led.on {
+  fill: #0f0;
+}
+
+.functions rect.led.red {
+  fill: #f00;
+}
+
+.functions rect.led.off {
+  fill: #353;
 }
 
 .functions text.scale {
-  font-size: 12px;
-  fill: #fff;
+  font-family: inherit;
 }
 
+.functions text {
+  font-size: 10px;
+  fill: #eee;
+}
 .log text.topval {
   font-size: 8px;
   fill: #ccc;
-}
-.functions text.label {
-  font-size: 12px;
-  fill: #444;
-  cursor: pointer;
 }
