@@ -11,7 +11,12 @@
 <svg class="votes" viewBox="0 0 400 100"></svg>
 <svg class="functions" viewBox="0 0 400 72"></svg>
 <svg class="log" viewBox="0 0 400 100">
-  <text class="topval" dx="350" dy="10"></text>
+  <text class="topwindow" dx="34" dy="10"></text>
+  <text class="topval" dx="352" dy="10"></text>
+  <path class="boot"/>
+  <path class="framework"/>
+  <path class="reactor"/>
+  <path class="riff"/>
 </svg>
 
 <script src="/js/underscore.js"></script>
@@ -42,16 +47,31 @@ function getMaxVal() {
   }, 0)
 }
 
-function updateWindows(evt) {
+function getMaxWindow() {
+  function maxw(o) { return _.max([o.win.boot, o.win.framework, o.win.reactor, o.win.riff]); }
+  return maxw(_.max(logData, maxw))
 }
 
-function updateLog(evt) {
-  const maxcnt = 30
+function normalize(evt) {
   evt.boot = evt.boot || 0;
   evt.framework = evt.framework || 0;
   evt.reactor = evt.reactor || 0;
   evt.riff = evt.riff || 0;
-  var cnt = logData.push( {t:Date.now(), sec:evt} )
+  return evt;
+}
+
+function updateWindows(evt) {
+  // adds window data to the most recent log event
+  // so that both log and windows data can be rendered at the same time
+  if (!logData.length) return console.log('skipping windows event, no log data yet');
+  log = logData[logData.length-1]
+  log.win = normalize(evt)
+}
+
+function updateLog(evt) {
+  const maxcnt = 30
+  var cnt = logData.push( {t:Date.now(), sec:normalize(evt), } )
+  logData[cnt-1].win = (cnt > 1) ? logData[cnt-2].win : normalize({})
   if (cnt > maxcnt) { 
     logData.shift() 
     cnt--
@@ -62,6 +82,19 @@ function updateLog(evt) {
   var vscale = 5 / scalefactor
   var topval = 20 * scalefactor
   d3.select("text.topval").text(topval)
+
+  // redraw window graphs
+  var maxwindow = getMaxWindow()
+  var wscalefactor = ((~~(maxwindow / 20)) + 1)
+  var wvscale = 5 / wscalefactor
+  var wtopval = 20 * wscalefactor
+  d3.select("text.topwindow").text(wtopval)
+
+  _.each(['boot','framework','reactor','riff'], (v) => {
+    d3.select("path."+v).attr("d", 'M' + ((missing * 10) + 50) + ' 100 '
+      + _.map(logData, (o) => 'V' + (100 - (o.win[v]) * wvscale) + ' h10').join(' ')
+      + (logData[logData.length-1].win[v] ? ' V100 z' : ''))
+  })
 
   var groups = d3.select("svg.log").selectAll("g")
     .data(logData,(d) => d.t)

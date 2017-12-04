@@ -118,10 +118,14 @@ io.on('connection', (socket) => {
   })
 
   socket.on('demo:getlog', () => {
-    redisDB.lrange('demo:votes-log', -30, -1, (err, vals) => {
+    redisDB.lrange('demo:votes-log', -30, -1, (err, lvals) => {
       if (err) return;
-      vals.forEach((val) => {
-        socket.emit('demo:votes-log', JSON.parse(val))
+      redisDB.lrange('demo:votes-windows', -30, -1, (err, wvals) => {
+        if (err) return;
+        for (var i = 0; i < lvals.length; i++) {
+          if (lvals[i]) { socket.emit('demo:votes-log', JSON.parse(lvals[i])) }
+          if (wvals[i]) { socket.emit('demo:votes-windows', JSON.parse(wvals[i])) }
+        }
       })
     })
   })

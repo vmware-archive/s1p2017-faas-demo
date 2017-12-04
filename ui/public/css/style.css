@@ -31,7 +31,7 @@ svg {
 }
 
 svg.functions {
-  background-color: #999;
+  background-color: #bbb;
 }
 
 .functions g {
@@ -39,7 +39,7 @@ svg.functions {
 }
 
 .functions rect.bg {
-  fill: #999;
+  fill: #bbb;
 }
 
 .functions rect.led {
@@ -62,13 +62,31 @@ svg.functions {
 
 .functions text.scale {
   font-family: inherit;
+  font-size:8px;
 }
 
 .functions text {
   font-size: 10px;
-  fill: #eee;
+  fill: #fff;
 }
-.log text.topval {
+.log text.topval, .log text.topwindow {
   font-size: 8px;
   fill: #ccc;
+}
+.log path {
+  stroke-width: 0;
+  fill: #eee;
+}
+
+.log path.boot {
+  fill: #6db33f15;
+}
+.log path.framework {
+  fill: #0e9fda15;
+}
+.log path.reactor {
+  fill: #ea999915;
+}
+.log path.riff {
+  fill: #f6b26b15;
 }

@@ -13,7 +13,7 @@ spec:
   input: votes
   output: function-replicas
   maxReplicas: 1
-  idleTimeoutMs: 60000
+  idleTimeoutMs: 3600000
   container:
     image: projectriff/vote-stream-processor:1.0.0
     env:
