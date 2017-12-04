@@ -281,6 +281,7 @@ socket.on('demo:votes-windows', updateWindows)
 
 socket.emit('demo:getvotes')
 socket.on('demo:votes', (votes) => {
+  if (!votes || typeof votes !== 'object') return;
   voteData.forEach((o) => { o.votes = votes[o.id] || 0; })
   updateVotes()
 })

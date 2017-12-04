@@ -122,6 +122,7 @@ io.on('connection', (socket) => {
       if (err) return;
       redisDB.lrange('demo:votes-windows', -30, -1, (err, wvals) => {
         if (err) return;
+        if (!lvals || !wvals) return;
         for (var i = 0; i < lvals.length; i++) {
           if (lvals[i]) { socket.emit('demo:votes-log', JSON.parse(lvals[i])) }
           if (wvals[i]) { socket.emit('demo:votes-windows', JSON.parse(wvals[i])) }
@@ -177,21 +178,21 @@ io.on('connection', (socket) => {
       case 'demo:votes':
       redisDB.hgetall(key, (err, vals) => {
           if (err) return;
-          socket.emit(key, vals)
+          if (vals) { socket.emit(key, vals) }
         })
         break;
       case 'demo:votes-log':
       case 'demo:votes-windows':
         redisDB.lindex(key, -1, (err, val) => {
           if (err) return;
-          socket.emit(key, JSON.parse(val))
+          if (val) { socket.emit(key, JSON.parse(val)) }
         })
         break;
       case 'demo:x':
       case 'demo:y':
         redisDB.get(key, (err, val) => {
           if (err) return;
-          socket.emit(key, val)
+          if (val) { socket.emit(key, val) }
         })
         break;
       }

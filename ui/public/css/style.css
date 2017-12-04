@@ -79,14 +79,14 @@ svg.functions {
 }
 
 .log path.boot {
-  fill: #6db33f15;
+  fill: #6db33f1f;
 }
 .log path.framework {
-  fill: #0e9fda15;
+  fill: #0e9fda1f;
 }
 .log path.reactor {
-  fill: #ea999915;
+  fill: #ea99991f;
 }
 .log path.riff {
-  fill: #f6b26b15;
+  fill: #f6b26b1f;
 }
