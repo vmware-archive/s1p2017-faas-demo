@@ -170,6 +170,9 @@ const scaleData = [1,2,3,4,5,6,7,8,9,10];
 
 function updateFunctions() {
   var cnt = functionData.length
+  var svg = d3.select("svg.functions")
+  svg.attr("viewBox", "0 0 400 " + ((18 * (cnt ? cnt + 1 : 0)) + (cnt ? 4 : 0)))
+
   // bars
   var leftmargin = 40
   var vgap = 2
@@ -179,7 +182,6 @@ function updateFunctions() {
   // lights
   var leddx = 4
   var ledgap = 1
-  var svg = d3.select("svg.functions")
 
   var bars = svg.selectAll("g.bar")
     .data(functionData, (d) => d.id)
