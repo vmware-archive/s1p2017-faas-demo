@@ -6,6 +6,7 @@ body {
 svg {
   width: 100%;
   height: auto;
+  /* border-bottom: 1px solid #ccc; */
 }
 
 .vote-button {
@@ -26,11 +27,11 @@ svg {
 }
 
 .votes text:hover, .vote-button:hover + text {
-  font-size:20px;
+  font-size:18px;
 }
 
 svg.functions {
-  background-color: #888;
+  background-color: #999;
 }
 
 .functions g {
@@ -38,7 +39,7 @@ svg.functions {
 }
 
 .functions rect.bg {
-  fill: #888;
+  fill: #999;
 }
 
 .functions rect.led {

@@ -9,7 +9,7 @@
 </head>
 <body>
 <svg class="votes" viewBox="0 0 400 100"></svg>
-<svg class="functions" viewBox="0 0 400 75"></svg>
+<svg class="functions" viewBox="0 0 400 72"></svg>
 <svg class="log" viewBox="0 0 400 100">
   <text class="topval" dx="350" dy="10"></text>
 </svg>
@@ -27,8 +27,9 @@ const voteData = [
 ];
 
 var functionData = [
-{id:"testfn1", replicas:8},
-{id:"testfn2", replicas:1},
+]
+
+var hiddenFunctions = [
 ]
 
 var logData = [
@@ -39,6 +40,9 @@ function getMaxVal() {
     var vtotal = v.sec.boot + v.sec.framework + v.sec.reactor + v.sec.riff
     return vtotal > max ? vtotal : max;
   }, 0)
+}
+
+function updateWindows(evt) {
 }
 
 function updateLog(evt) {
@@ -151,7 +155,18 @@ function updateFunctions() {
   var inserts = bars.enter().append("g")
     .attr("class", "bar")
     .attr("transform", (d,i) => "translate(" + leftmargin + "," +(((i + 0.8) * (dy + vgap)) + vgap) +")")
-    .on('click', (d,i) => { socket.emit('testscale', { [d.id]: "delete" })})
+    .on('click', (d,i) => {
+      if (d3.event.shiftKey) {
+        socket.emit('testscale', { [d.id]: "delete" })
+      } else {
+        hiddenFunctions.push(d.id)
+        var idx = _.findIndex(functionData, (o) => o.id === d.id)
+        if (idx >= 0) {
+          functionData.splice(idx,1)
+          updateFunctions()
+        }
+      }
+    })
 
   inserts.append("rect")
     .attr("class", "bg").attr("height", dy).attr("width", dx * 2)
@@ -225,13 +240,17 @@ updateVotes();
 const socket = io()
 socket.on('connect', () => { console.log('connect', socket.id) })
 
-socket.on('logevent', updateLog)
+socket.emit('demo:getlog')
+socket.on('demo:votes-log', updateLog)
+socket.on('demo:votes-windows', updateWindows)
 
+socket.emit('demo:getvotes')
 socket.on('demo:votes', (votes) => {
-  voteData.forEach((o) => { o.votes = votes[o.id]; })
+  voteData.forEach((o) => { o.votes = votes[o.id] || 0; })
   updateVotes()
 })
 
+socket.emit('demo:getreplicas')
 socket.on('demo:function-replicas', (fns) => {
   fns = fns || {}
   functionData.slice().forEach((obj, i) => {
@@ -243,7 +262,9 @@ socket.on('demo:function-replicas', (fns) => {
     }
   })
   for (fn in fns) {
-    functionData.push({ id:fn, replicas:fns[fn] }) // insert missing data
+    if (_.indexOf(hiddenFunctions, fn) < 0) {
+      functionData.push({ id:fn, replicas:fns[fn] }) // insert missing data
+    }
   }
   updateFunctions()
 })

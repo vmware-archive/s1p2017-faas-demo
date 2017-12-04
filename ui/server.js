@@ -109,6 +109,23 @@ io.on('connection', (socket) => {
     })
   })
 
+  socket.on('demo:getreplicas', () => {
+    emitRedisData("demo:function-replicas")
+  })
+
+  socket.on('demo:getvotes', () => {
+    emitRedisData("demo:votes")
+  })
+
+  socket.on('demo:getlog', () => {
+    redisDB.lrange('demo:votes-log', -30, -1, (err, vals) => {
+      if (err) return;
+      vals.forEach((val) => {
+        socket.emit('demo:votes-log', JSON.parse(val))
+      })
+    })
+  })
+
   socket.on('vote', (evt) => {
     //(aggregates[evt][idx])++;
 
@@ -147,28 +164,33 @@ io.on('connection', (socket) => {
 
   function redisEvent(pat, ch, msg) { 
     const key = ch.replace(/[^:]*:(.*)/,'$1')
+    emitRedisData(key)
+  }
+
+  function emitRedisData(key) {
     switch (key) {
-    case 'demo:function-replicas':
-    case 'demo:votes':
-    redisDB.hgetall(key, (err, vals) => {
-        if (err) return;
-        socket.emit(key, vals)
-      })
-      break;
-    case 'demo:votes-log':
-      redisDB.lindex(key, -1, (err, val) => {
-        if (err) return;
-        socket.emit('logevent', JSON.parse(val))
-      })
-      break;
-    case 'demo:x':
-    case 'demo:y':
-      redisDB.get(key, (err, val) => {
-        if (err) return;
-        socket.emit(key, val)
-      })
-      break;
-    }
+      case 'demo:function-replicas':
+      case 'demo:votes':
+      redisDB.hgetall(key, (err, vals) => {
+          if (err) return;
+          socket.emit(key, vals)
+        })
+        break;
+      case 'demo:votes-log':
+      case 'demo:votes-windows':
+        redisDB.lindex(key, -1, (err, val) => {
+          if (err) return;
+          socket.emit(key, JSON.parse(val))
+        })
+        break;
+      case 'demo:x':
+      case 'demo:y':
+        redisDB.get(key, (err, val) => {
+          if (err) return;
+          socket.emit(key, val)
+        })
+        break;
+      }
   }
 })
 
