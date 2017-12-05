@@ -1,0 +1,15 @@
+#!/bin/bash
+
+eval $(minikube docker-env)
+cd ../functions/vote-stream-processor
+./mvnw clean package
+riff build -v 1.0.0
+riff apply
+cd ../redis-writer
+riff build -v 1.0.0
+riff apply
+cd ../vote-counter
+riff build -v 0.0.1
+riff apply
+cd ../..
+

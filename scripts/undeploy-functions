@@ -1,0 +1,10 @@
+#!/bin/bash
+
+kubectl delete function vote-stream-processor
+kubectl delete function redis-writer
+kubectl delete function vote-counter
+
+kubectl delete topic votes
+kubectl delete topic counted-votes
+kubectl delete topic function-replicas
+
