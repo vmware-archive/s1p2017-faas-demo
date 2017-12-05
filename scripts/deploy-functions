@@ -1,0 +1,9 @@
+#!/bin/bash
+
+riff apply -f /Users/mark/dev/s1p2017-faas-demo/functions/redis-writer
+sleep 3
+riff apply -f /Users/mark/dev/s1p2017-faas-demo/functions/vote-stream-processor
+riff apply -f /Users/mark/dev/s1p2017-faas-demo/functions/vote-counter
+sleep 3
+publish votes ignoreme
+

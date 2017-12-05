@@ -1,0 +1,3 @@
+#!/bin/bash
+
+kubectl apply -f /Users/mark/dev/s1p2017-faas-demo/ui/config

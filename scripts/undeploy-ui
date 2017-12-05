@@ -1,0 +1,4 @@
+#!/bin/bash
+
+kubectl delete deploy ui
+kubectl delete svc ui
