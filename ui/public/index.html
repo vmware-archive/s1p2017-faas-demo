@@ -251,9 +251,9 @@ function updateVotes() {
     .on('click', (d,i) => {
       socket.emit('vote', d.id)
     })
-    .on('mousemove', (d,i) => {
-      socket.emit('vote',  d.id)
-    })
+    // .on('mousemove', (d,i) => {
+    //   socket.emit('vote',  d.id)
+    // })
 
   newVoteButtons.append("circle")
     .attr("class","vote-button")

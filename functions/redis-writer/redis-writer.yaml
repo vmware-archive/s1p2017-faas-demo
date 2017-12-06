@@ -13,7 +13,7 @@ spec:
   input: function-replicas
   idleTimeoutMs: 60000
   container:
-    image: projectriff/redis-writer:1.0.0
+    image: projectriff/redis-writer:0.0.2
     env:
     - name: DEFAULT_HASH_KEY
       value: demo:function-replicas
