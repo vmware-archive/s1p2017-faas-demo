@@ -3,10 +3,10 @@ body {
   margin: 0;
 }
 
-svg {
-  width: 100%;
-  height: auto;
-  /* border-bottom: 1px solid #ccc; */
+div.center {
+  margin:0 auto;
+  width:150vh;
+  max-width:100%;
 }
 
 .vote-button {

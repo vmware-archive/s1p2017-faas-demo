@@ -25,7 +25,7 @@ const GATEWAY_PORT = envFind('HTTP_GATEWAY_SERVICE_PORT$') || 80
 var vote_post_cnt = 0  // to correlate fetch requests with responses
 const vote_post_endpoint = `http://${GATEWAY_HOST}:${GATEWAY_PORT}/messages/votes`
 
-if (!GATEWAY_HOST) { console.log("WARNING: No HTTP_GATEWAY - writing votes to redis directly.") }
+if (!GATEWAY_HOST) { console.log("WARNING: No HTTP_GATEWAY - writing votes to redis directly and auto-computing windows.") }
 
 // circular buffer of vote-counts every 2 seconds, recycled every 60s
 const aggregates = {
@@ -39,7 +39,7 @@ const aggregates = {
 var idx = 0;
 
 // every 2 seconds, publish tallies from the last 2 seconds, and total from the last 60s.
-/* setInterval(() => {
+if (!GATEWAY_HOST) { setInterval(() => {
   var logdata = {
     boot: aggregates.boot[idx],
     framework: aggregates.framework[idx],
@@ -61,8 +61,8 @@ var idx = 0;
     reactor: aggregates.reactor.reduce((s,v) => s+v,0),
     riff: aggregates.riff.reduce((s,v) => s+v,0) }
 
-  redisDB.rpush('demo:votes-window', JSON.stringify(windowdata), (err) => {
-    if (err) console.log('Error writing votes-window to redis' + err);
+  redisDB.rpush('demo:votes-windows', JSON.stringify(windowdata), (err) => {
+    if (err) console.log('Error writing votes-windows to redis' + err);
   })
 
   idx = (idx + 1) % 30
@@ -71,7 +71,7 @@ var idx = 0;
   aggregates.reactor[idx] = 0
   aggregates.riff[idx] = 0
 
-}, 2000)  */
+}, 2000)}
 
 const redisLib = require("redis")
 const redisOpts = {host:REDIS_HOST, port:REDIS_PORT, auth_pass:REDIS_PASSWORD}
@@ -132,8 +132,6 @@ io.on('connection', (socket) => {
   })
 
   socket.on('vote', (evt) => {
-    //(aggregates[evt][idx])++;
-
     if (GATEWAY_HOST) {
       const body = evt
       vote_post_cnt++
@@ -146,6 +144,7 @@ io.on('connection', (socket) => {
       // .then(res => console.log(vote_post_cnt, res.status))
       .catch(err => console.log(vote_post_cnt, err))
     } else {
+      (aggregates[evt][idx])++;
       redisDB.hincrby("demo:votes", evt, 1, (err) => {
         if (err) console.log('Error writing votes to redis' + err);
       })
