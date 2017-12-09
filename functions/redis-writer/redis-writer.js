@@ -1,3 +1,13 @@
+const redisOpts = {
+  host:process.env.COUNTERS_REDIS_SERVICE_HOST,
+  port:process.env.COUNTERS_REDIS_SERVICE_PORT,
+  auth_pass:process.env.REDIS_PASSWORD
+}
+
+const redisDB = require('redis').createClient(redisOpts)
+
+redisDB.on('error', (err) => { console.log(`redisDB error: ${err}`); })
+
 module.exports = (input_object) => {
 
 const util = require('util');
@@ -19,16 +29,6 @@ delete input._operation;
 
 var hash = input._hash || DEFAULT_HASH_KEY
 delete input._hash;
-
-const redisOpts = {
-  host:process.env.COUNTERS_REDIS_SERVICE_HOST,
-  port:process.env.COUNTERS_REDIS_SERVICE_PORT,
-  auth_pass:process.env.REDIS_PASSWORD
-}
-
-const redisDB = require('redis').createClient(redisOpts)
-
-redisDB.on('error', (err) => { console.log(`redisDB error: ${err}`); })
 
 if (input._list) {
   const key = input._list
