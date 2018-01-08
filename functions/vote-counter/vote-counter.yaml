@@ -24,6 +24,8 @@ spec:
   container:
     image: projectriff/vote-counter:0.0.3
     env:
+    - name: NODE_DEBUG
+      value: riff
     - name: REDIS_PASSWORD
       valueFrom:
         secretKeyRef:

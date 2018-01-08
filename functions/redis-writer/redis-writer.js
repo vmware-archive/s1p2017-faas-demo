@@ -8,19 +8,16 @@ const redisDB = require('redis').createClient(redisOpts)
 
 redisDB.on('error', (err) => { console.log(`redisDB error: ${err}`); })
 
-module.exports = (input_object) => {
-
-const util = require('util');
+module.exports = (input_object) => new Promise((resolve, reject) => {
 
 var input = input_object;
 
 if (typeof input === 'string') {
-  try { input = JSON.parse(input) }
-  catch(err) { return `Error parsing input string "${input}": ${err}`; }
+  input = JSON.parse(input); // ok to throw, invoker should handle
 }
 
 if (Array.isArray(input)) { input = input[0] }
-if (typeof input !== 'object') return "Error, input is not a JSON object.";
+if (typeof input !== 'object') throw new Error("Input is not a JSON object.");
 
 var { DEFAULT_HASH_KEY, DEFAULT_COMMAND } = process.env
 
@@ -33,7 +30,7 @@ delete input._hash;
 if (input._list) {
   const key = input._list
   delete input._list
-  redisDB.rpush(key, JSON.stringify(input), redisErr)
+  redisDB.rpush(key, JSON.stringify(input), redisDone)
 }
 else 
 {
@@ -42,21 +39,23 @@ else
 
     if (hash) {
       if (op == 'increment') {
-        redisDB.hincrby(hash, key, input[key], redisErr)
+        redisDB.hincrby(hash, key, input[key], redisDone)
       } else {
-        redisDB.hset(hash, key, input[key], redisErr)
+        redisDB.hset(hash, key, input[key], redisDone)
       }
     } else {
       if (op == 'increment') {
-        redisDB.incrby(key, input[key], redisErr)
+        redisDB.incrby(key, input[key], redisDone)
       } else {
-        redisDB.set(key, input[key], redisErr)
+        redisDB.set(key, input[key], redisDone)
       }
     }
   }
 }
 
-function redisErr(err) { if (err) { console.log(err) }}
+function redisDone(err) {
+  if (err) return reject(err);
+  resolve(input_object);
+}
 
-return util.inspect(input_object); // return complete input_object as a string for observability
-} 
+})
