@@ -32,7 +32,7 @@ node server
 #### To install redis on minikube
 ```
 helm init
-helm install -n counters stable/redis --set serviceType=NodePort
+helm install -n counters stable/redis --set serviceType=NodePort --set persistence.enabled=false
 ```
 
 #### To install the demo on riff using docker images
@@ -48,9 +48,9 @@ pushd ui ; kubectl apply -f config ; popd
 change to the demo directory
 ```
 eval $(minikube docker-env)
-pushd functions/vote-counter ; riff build -v 0.0.2 ; popd
-pushd functions/redis-writer ; riff build -v 0.0.2 ; popd
-pushd functions/vote-stream-processor ; ./mvnw -DskipTests clean package ; riff build -v 0.0.2 ; popd
+pushd functions/vote-counter ; riff build -v 0.0.3 ; popd
+pushd functions/redis-writer ; riff build -v 0.0.3; popd
+pushd functions/vote-stream-processor ; ./mvnw -DskipTests clean package ; riff build -v 0.0.3 ; popd
 pushd ui ; docker build -t projectriff/riff-demo-ui:0.0.4 . ; popd
 ```
 

@@ -22,7 +22,7 @@ spec:
   output: counted-votes
   idleTimeoutMs: 60000
   container:
-    image: projectriff/vote-counter:0.0.2
+    image: projectriff/vote-counter:0.0.3
     env:
     - name: REDIS_PASSWORD
       valueFrom:

@@ -13,8 +13,10 @@ spec:
   input: function-replicas
   idleTimeoutMs: 60000
   container:
-    image: projectriff/redis-writer:0.0.2
+    image: projectriff/redis-writer:0.0.3
     env:
+    - name: NODE_DEBUG
+      value: riff
     - name: DEFAULT_HASH_KEY
       value: demo:function-replicas
     - name: REDIS_PASSWORD
