@@ -4,13 +4,18 @@ const server = require('http').Server(app)
 const util = require('util')
 const fetch = require('node-fetch')
 const EventEmitter = require('events')
+const k8s = require('kubernetes-client') // https://github.com/godaddy/kubernetes-client
+const JSONStream = require('json-stream');
+
 
 // object matching destructuring inspired by https://apex.github.io/up/#getting_started
 const { 
   PORT = 8080,
   REDIS_HOST,
   REDIS_PORT,
-  REDIS_PASSWORD
+  REDIS_PASSWORD,
+  KUBERNETES_SERVICE_HOST,
+  KUBERNETES_SERVICE_PORT
 } = process.env
 
 function envFind(s) {
@@ -24,6 +29,7 @@ const GATEWAY_PORT = envFind('HTTP_GATEWAY_SERVICE_PORT$') || 80
 
 var vote_post_cnt = 0  // to correlate fetch requests with responses
 const vote_post_endpoint = `http://${GATEWAY_HOST}:${GATEWAY_PORT}/messages/votes`
+
 
 if (!GATEWAY_HOST) { console.log("WARNING: No HTTP_GATEWAY - writing votes to redis directly and auto-computing windows.") }
 
@@ -197,6 +203,24 @@ io.on('connection', (socket) => {
       }
   }
 })
+
+const k8sConfig = KUBERNETES_SERVICE_HOST ? k8s.config.getInCluster() : k8s.config.fromKubeconfig();
+const k8sCore = new k8s.Core(k8sConfig);
+const k8sExt = new k8s.Extensions(k8sConfig);
+
+const jsonStream = new JSONStream();
+const stream = k8sExt.ns.deploy.getStream({ qs: { watch:true, labelSelector:'function!=function-replicas' } });
+stream.pipe(jsonStream);
+jsonStream.on('data', data => {
+  if (data.object.metadata.labels.function) {
+    const fn = data.object.metadata.name
+    const replicas = data.object.spec.replicas
+    // console.log('scale:', fn, replicas);
+    redisDB.hset('demo:function-replicas', fn, replicas, (err) => {
+      if (err) console.log('Error writing function-replicas to redis' + err);
+    })
+  }
+});
 
 // use /echo for debugging with request counter middleware
 var reqcnt = 0;

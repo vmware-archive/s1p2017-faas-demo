@@ -14,6 +14,8 @@
   "license": "MIT",
   "dependencies": {
     "express": "^4.16.2",
+    "json-stream": "^1.0.0",
+    "kubernetes-client": "^3.17.2",
     "node-fetch": "^1.7.3",
     "redis": "^2.8.0",
     "socket.io": "^2.0.4"
