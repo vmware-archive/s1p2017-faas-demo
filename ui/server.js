@@ -208,19 +208,25 @@ const k8sConfig = KUBERNETES_SERVICE_HOST ? k8s.config.getInCluster() : k8s.conf
 const k8sCore = new k8s.Core(k8sConfig);
 const k8sExt = new k8s.Extensions(k8sConfig);
 
-const jsonStream = new JSONStream();
-const stream = k8sExt.ns.deploy.getStream({ qs: { watch:true, labelSelector:'function!=function-replicas' } });
-stream.pipe(jsonStream);
-jsonStream.on('data', data => {
-  if (data.object.metadata.labels.function) {
-    const fn = data.object.metadata.name
-    const replicas = data.object.spec.replicas
-    // console.log('scale:', fn, replicas);
-    redisDB.hset('demo:function-replicas', fn, replicas, (err) => {
-      if (err) console.log('Error writing function-replicas to redis' + err);
-    })
-  }
-});
+// monitor for scale changes
+(function watchDeployments() {
+  const jsonStream = new JSONStream();
+  const stream = k8sExt.ns.deploy.getStream({ qs: { watch:true, labelSelector:'function!=function-replicas' } });
+  stream.pipe(jsonStream);
+  jsonStream.on('data', data => {
+    if (data.object.metadata.labels.function) {
+      const fn = data.object.metadata.name
+      const replicas = data.object.spec.replicas
+      // console.log('scale:', fn, replicas);
+      redisDB.hset('demo:function-replicas', fn, replicas, (err) => {
+        if (err) console.log('Error writing function-replicas to redis' + err);
+      })
+    }
+  });
+  // reconnect automatically when stream ends (should probably cleanup more here)
+  jsonStream.on('end', watchDeployments)
+  console.log(`watching deployments: ${Date()}`)
+})();
 
 // use /echo for debugging with request counter middleware
 var reqcnt = 0;
