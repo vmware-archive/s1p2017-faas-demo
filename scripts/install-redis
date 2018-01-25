@@ -2,4 +2,4 @@
 
 # prereqs: helm init (tiller should be running in the kube-system namespace)
 
-helm install -n counters stable/redis --set serviceType=NodePort
+helm install -n counters stable/redis --set serviceType=NodePort --set persistence.enabled=false
