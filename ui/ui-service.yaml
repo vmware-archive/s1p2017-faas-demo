@@ -6,7 +6,7 @@ metadata:
     app: riff
     component: ui
 spec:
-  type: LoadBalancer
+  type: NodePort
   ports:
   - port: 80
     name: http
