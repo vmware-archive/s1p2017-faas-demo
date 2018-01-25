@@ -249,6 +249,11 @@ app.use('/echo', (req, res) => {
 // default to serving static for all other paths
 app.use(express.static('public'))
 
+// temporary redirect root after inadvertent tweet
+app.use('/', (req, res) => {
+  res.redirect('https://projectriff.io/blog/first-post-announcing-riff-0-0-2-release/')
+})
+
 // must listen on server (not app) for socket.io to work
 server.listen(PORT, () => console.log(`UI listening on port ${PORT}`))
 

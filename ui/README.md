@@ -50,7 +50,7 @@ change to the demo directory
 eval $(minikube docker-env)
 pushd functions/vote-counter ; riff build -v 0.0.3 ; popd
 pushd functions/redis-writer ; riff build -v 0.0.3; popd
-pushd functions/vote-stream-processor ; ./mvnw -DskipTests clean package ; riff build -v 0.0.3 ; popd
+pushd functions/vote-stream-processor ; ./mvnw -DskipTests clean package ; riff build -v 0.0.4 ; popd
 pushd ui ; docker build -t projectriff/riff-demo-ui:0.0.5 . ; popd
 ```
 
