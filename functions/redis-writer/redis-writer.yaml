@@ -13,7 +13,7 @@ spec:
   input: function-replicas
   idleTimeoutMs: 60000
   container:
-    image: projectriff/redis-writer:0.0.4
+    image: projectriff/redis-writer:0.0.5
     env:
     - name: NODE_DEBUG
       value: riff
