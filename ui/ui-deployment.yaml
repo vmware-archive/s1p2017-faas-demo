@@ -13,7 +13,7 @@ spec:
     spec:
       serviceAccountName: demo-riff-sa
       containers:
-      - image: projectriff/riff-demo-ui:0.0.8
+      - image: projectriff/riff-demo-ui:0.0.9
         name: ui
         imagePullPolicy: IfNotPresent
         env:
