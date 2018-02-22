@@ -9,13 +9,13 @@ kind: Function
 metadata:
   name: vote-stream-processor
 spec:
-  protocol: pipes
+  protocol: grpc
   input: votes
   output: function-replicas
   maxReplicas: 1
   idleTimeoutMs: 3600000
   container:
-    image: projectriff/vote-stream-processor:0.0.6
+    image: projectriff/vote-stream-processor:0.0.4-feb-21
     env:
     - name: SPRING_CLOUD_STREAM_BINDER_FILE_PREFIX
       value: /pipes
