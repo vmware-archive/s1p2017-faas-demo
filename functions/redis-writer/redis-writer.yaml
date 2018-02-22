@@ -5,15 +5,22 @@ metadata:
 ---
 
 apiVersion: projectriff.io/v1
+kind: Topic
+metadata:
+  name: dummy
+---
+
+apiVersion: projectriff.io/v1
 kind: Function
 metadata:
   name: redis-writer
 spec:
-  protocol: http
+  protocol: grpc
   input: function-replicas
+  output: dummy
   idleTimeoutMs: 60000
   container:
-    image: projectriff/redis-writer:0.0.6
+    image: projectriff/redis-writer:0.0.4-feb-21
     env:
     - name: NODE_DEBUG
       value: riff

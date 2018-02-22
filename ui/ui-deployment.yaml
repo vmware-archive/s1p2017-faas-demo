@@ -11,9 +11,9 @@ spec:
         app: riff
         component: ui
     spec:
-      serviceAccountName: demo-riff-sa
+      serviceAccountName: demo-riff
       containers:
-      - image: projectriff/riff-demo-ui:0.0.9
+      - image: projectriff/riff-demo-ui:0.0.4-feb-21
         name: ui
         imagePullPolicy: IfNotPresent
         env:
