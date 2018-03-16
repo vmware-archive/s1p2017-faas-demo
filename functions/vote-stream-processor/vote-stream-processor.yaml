@@ -15,7 +15,7 @@ spec:
   maxReplicas: 1
   idleTimeoutMs: 3600000
   container:
-    image: projectriff/vote-stream-processor:0.0.4-feb-21
+    image: projectriff/vote-stream-processor:0.0.5-snapshot-3-15-b
     env:
     - name: SPRING_CLOUD_STREAM_BINDER_FILE_PREFIX
       value: /pipes

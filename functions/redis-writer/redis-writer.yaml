@@ -20,7 +20,7 @@ spec:
   output: dummy
   idleTimeoutMs: 60000
   container:
-    image: projectriff/redis-writer:0.0.4-feb-21
+    image: projectriff/redis-writer:0.0.5-snapshot-3-15-b
     env:
     - name: NODE_DEBUG
       value: riff
