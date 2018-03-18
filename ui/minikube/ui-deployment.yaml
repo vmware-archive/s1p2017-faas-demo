@@ -1,0 +1,27 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: votes-ui
+spec:
+  replicas: 1
+  template:
+    metadata:
+      name: ui
+      labels:
+        app: votes
+        component: ui
+    spec:
+      containers:
+      - image: projectriff/riff-demo-ui:0.1.0
+        name: ui
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: HTTP_GATEWAY_SERVICE_HOST
+          value: control-riff-http-gateway.riff-system
+        - name: REDIS_HOST
+          value: counters-redis
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: counters-redis
+              key: redis-password

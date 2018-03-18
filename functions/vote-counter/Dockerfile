@@ -1,4 +1,4 @@
 FROM projectriff/node-function-invoker:0.0.5-snapshot
-RUN npm install redis@2.8.0 --production
-ENV FUNCTION_URI ./vote-counter.js
-COPY vote-counter.js .
+ENV FUNCTION_URI /functions/
+COPY . ${FUNCTION_URI}
+RUN (cd ${FUNCTION_URI} && npm install --production)

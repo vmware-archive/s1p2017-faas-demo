@@ -1,0 +1,21 @@
+apiVersion: projectriff.io/v1
+kind: Function
+metadata:
+  name: redis-writer
+spec:
+  protocol: grpc
+  input: function-replicas
+  output: dummy
+  idleTimeoutMs: 60000
+  container:
+    image: projectriff/redis-writer:0.1.0
+    env:
+    - name: NODE_DEBUG
+      value: riff
+    - name: DEFAULT_HASH_KEY
+      value: demo:function-replicas
+    - name: REDIS_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: counters-redis
+          key: redis-password

@@ -1,0 +1,19 @@
+apiVersion: projectriff.io/v1
+kind: Function
+metadata:
+  name: vote-counter
+spec:
+  protocol: grpc
+  input: votes
+  output: counted-votes
+  idleTimeoutMs: 5000
+  container:
+    image: projectriff/vote-counter:0.1.0
+    env:
+    - name: NODE_DEBUG
+      value: riff
+    - name: REDIS_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: counters-redis
+          key: redis-password
