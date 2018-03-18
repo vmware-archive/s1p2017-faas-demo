@@ -1,0 +1,15 @@
+apiVersion: projectriff.io/v1
+kind: Function
+metadata:
+  name: vote-stream-processor
+spec:
+  protocol: grpc
+  input: votes
+  output: function-replicas
+  maxReplicas: 1
+  idleTimeoutMs: 3600000
+  container:
+    image: projectriff/vote-stream-processor:0.1.0
+    env:
+    - name: SPRING_APPLICATION_JSON
+      value: '{"logging.level.org.springframework.cloud.stream.binder.file":"DEBUG", "spring.cloud.stream.bindings.output.content-type":"application/json"}'
