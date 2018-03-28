@@ -1,0 +1,13 @@
+---
+apiVersion: projectriff.io/v1
+kind: Function
+metadata:
+  name: vote-stream-processor-node
+spec:
+  protocol: grpc
+  input: votes
+  output: function-replicas
+  maxReplicas: 1
+  idleTimeoutMs: 3600000
+  container:
+    image: jleschner/vote-stream-processor-node:0.0.1
