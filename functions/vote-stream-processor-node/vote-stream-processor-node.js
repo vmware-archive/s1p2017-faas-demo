@@ -7,7 +7,7 @@ const aggregates = {
 }
 
 module.exports = (input, output) => {
-  // aggregates index scrolls from 0 to 30 and then back to 0
+  // aggregates index scrolls from 0 to 29 and then back to 0
   var idx = 0;
 
   input.on('data', vote => {
