@@ -13,7 +13,7 @@ import reactor.core.publisher.Flux;
 public class VoteStreamProcessor implements Function<Flux<String>, Flux<Map<String, Object>>> {
 
 	public Flux<Map<String, Object>> apply(Flux<String> words) {
-		return Flux.merge(intervals(words), windows(words));
+		return words.publish(w -> Flux.merge(intervals(w), windows(w)));
 	}
 
 	public Flux<Map<String, Object>> intervals(Flux<String> words) {

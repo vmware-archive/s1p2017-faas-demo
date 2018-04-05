@@ -1,4 +1,4 @@
-apiVersion: projectriff.io/v1
+apiVersion: projectriff.io/v1alpha1
 kind: Function
 metadata:
   name: vote-counter
@@ -8,7 +8,7 @@ spec:
   output: counted-votes
   idleTimeoutMs: 5000
   container:
-    image: projectriff/vote-counter:0.1.0
+    image: projectriff/vote-counter:0.2.0
     env:
     - name: NODE_DEBUG
       value: riff

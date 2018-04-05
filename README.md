@@ -20,11 +20,11 @@ eval $(minikube docker-env)
  
 pushd functions/vote-stream-processor ; ./mvnw -DskipTests clean package ; popd
 
-riff build -f functions/vote-counter/ -v 0.1.0 -u projectriff
-riff build -f functions/redis-writer/ -v 0.1.0 -u projectriff
-riff build -f functions/vote-stream-processor/ -v 0.1.0 -u projectriff
+riff build -f functions/vote-counter/ -v 0.2.0 -u projectriff
+riff build -f functions/redis-writer/ -v 0.2.0 -u projectriff
+riff build -f functions/vote-stream-processor/ -v 0.2.0 -u projectriff
 
-docker build -t projectriff/riff-demo-ui:0.1.0 ui
+docker build -t projectriff/riff-demo-ui:0.2.0 ui
 ```
 
 ### install riff
@@ -32,8 +32,7 @@ docker build -t projectriff/riff-demo-ui:0.1.0 ui
 ```
 helm init
 kubectl create namespace riff-system
-helm install --name transport --namespace riff-system projectriff/kafka
-helm install --name control --namespace riff-system projectriff/riff --devel --set rbac.create=false --set httpGateway.service.type=NodePort
+helm install --name control --namespace riff-system projectriff/riff --devel --set rbac.create=false --set kafka.create=true --set httpGateway.service.type=NodePort
 ```
 
 ### install redis
@@ -72,8 +71,7 @@ kubectl -n kube-system create serviceaccount tiller
 kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller
 helm init --service-account=tiller
 kubectl create namespace riff-system
-helm install --name transport --namespace riff-system projectriff/kafka
-helm install --name control --namespace riff-system projectriff/riff --devel
+helm install --name control --namespace riff-system projectriff/riff --devel --set kafka.create=true
 ```
 
 ### install redis
