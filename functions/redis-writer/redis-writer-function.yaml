@@ -1,4 +1,4 @@
-apiVersion: projectriff.io/v1
+apiVersion: projectriff.io/v1alpha1
 kind: Function
 metadata:
   name: redis-writer
@@ -8,7 +8,7 @@ spec:
   output: dummy
   idleTimeoutMs: 60000
   container:
-    image: projectriff/redis-writer:0.1.0
+    image: projectriff/redis-writer:0.2.0
     env:
     - name: NODE_DEBUG
       value: riff

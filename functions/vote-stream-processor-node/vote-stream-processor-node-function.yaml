@@ -1,0 +1,16 @@
+---
+apiVersion: projectriff.io/v1alpha1
+kind: Function
+metadata:
+  name: vote-stream-processor-node
+spec:
+  protocol: grpc
+  input: votes
+  output: function-replicas
+  maxReplicas: 1
+  idleTimeoutMs: 3600000
+  container:
+    image: projectriff/vote-stream-processor-node:0.2.0
+    env:
+    - name: NODE_DEBUG
+      value: riff

@@ -12,7 +12,7 @@ spec:
         component: ui
     spec:
       containers:
-      - image: projectriff/riff-demo-ui:0.1.0
+      - image: projectriff/riff-demo-ui:0.2.0
         name: ui
         imagePullPolicy: IfNotPresent
         env:
