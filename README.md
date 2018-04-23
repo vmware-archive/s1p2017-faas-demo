@@ -2,6 +2,14 @@
 
 This demo consists of three functions and a UI to collect votes and display the results.
 
+**NOTE**: Because of riff [issue #553](https://github.com/projectriff/riff/issues/553), we recommend running this demo with riff version 0.0.5, following the demo install instructions from [this commit](https://github.com/projectriff-samples/s1p2017-faas-demo/tree/cf388c3cd8dd1ad9f570ebf6ab6edfa17a9888ac) and using the 0.0.5 riff helm chart. Please also using the [v0.0.5 CLI](https://github.com/projectriff/riff/releases/tag/v0.0.5).
+
+```
+helm install --name control --namespace riff-system projectriff/riff --version 0.0.5 --set rbac.create=false --set httpGateway.service.type=NodePort
+```
+
+---
+
 ![votes demo image](s1p-demo-votes.png "Votes Demo")
 
 The vote bubbles on the top of the UI page collects votes and posts them via the HTTP gateway to the _votes_ topic.
