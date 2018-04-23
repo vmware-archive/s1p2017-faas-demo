@@ -2,7 +2,7 @@
 
 This demo consists of three functions and a UI to collect votes and display the results.
 
-**NOTE**: Because of riff [issue #553](https://github.com/projectriff/riff/issues/553), we recommend running this demo with riff version 0.0.5, following the demo install instructions from [this commit](https://github.com/projectriff-samples/s1p2017-faas-demo/tree/cf388c3cd8dd1ad9f570ebf6ab6edfa17a9888ac) and using the 0.0.5 riff helm chart. Please also using the [v0.0.5 CLI](https://github.com/projectriff/riff/releases/tag/v0.0.5).
+**NOTE**: Because of riff [issue #553](https://github.com/projectriff/riff/issues/553), we recommend running this demo with riff version 0.0.5, following the instructions from commit [cf388c3](https://github.com/projectriff-samples/s1p2017-faas-demo/tree/cf388c3cd8dd1ad9f570ebf6ab6edfa17a9888ac) of this repo, and using the 0.0.5 riff helm chart together with the [v0.0.5 CLI](https://github.com/projectriff/riff/releases/tag/v0.0.5).
 
 ```
 helm install --name control --namespace riff-system projectriff/riff --version 0.0.5 --set rbac.create=false --set httpGateway.service.type=NodePort
