@@ -13,14 +13,14 @@ spec:
     spec:
       serviceAccountName: votes-ui
       containers:
-      - image: projectriff/riff-demo-ui:0.2.0
+      - image: projectriff/riff-demo-ui:0.2.1
         name: ui
         imagePullPolicy: IfNotPresent
         env:
         - name: HTTP_GATEWAY_SERVICE_HOST
-          value: control-riff-http-gateway.riff-system
+          value: projectriff-riff-http-gateway.riff-system
         - name: REDIS_HOST
-          value: counters-redis
+          value: counters-redis-master
         - name: REDIS_PASSWORD
           valueFrom:
             secretKeyRef:

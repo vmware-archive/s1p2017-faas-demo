@@ -8,12 +8,14 @@ spec:
   output: dummy
   idleTimeoutMs: 60000
   container:
-    image: projectriff/redis-writer:0.2.0
+    image: projectriff/redis-writer:0.2.1
     env:
     - name: NODE_DEBUG
       value: riff
     - name: DEFAULT_HASH_KEY
       value: demo:function-replicas
+    - name: REDIS_HOST
+      value: counters-redis-master
     - name: REDIS_PASSWORD
       valueFrom:
         secretKeyRef:

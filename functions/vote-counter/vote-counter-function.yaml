@@ -8,10 +8,12 @@ spec:
   output: counted-votes
   idleTimeoutMs: 5000
   container:
-    image: projectriff/vote-counter:0.2.0
+    image: projectriff/vote-counter:0.2.1
     env:
     - name: NODE_DEBUG
       value: riff
+    - name: REDIS_HOST
+      value: counters-redis-master
     - name: REDIS_PASSWORD
       valueFrom:
         secretKeyRef:

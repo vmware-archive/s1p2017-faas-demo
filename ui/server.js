@@ -214,14 +214,14 @@ const k8sExt = new k8s.Extensions(k8sConfig);
   const stream = k8sExt.ns.deploy.getStream({ qs: { watch:true, labelSelector:'function!=function-replicas' } });
   stream.pipe(jsonStream);
   jsonStream.on('data', data => {
-    if (data.object.metadata.labels.function) {
+    if (data.object && data.object.metadata.labels.function) {
       const fn = data.object.metadata.name
       const replicas = data.object.spec.replicas
       // console.log('scale:', fn, replicas);
       redisDB.hset('demo:function-replicas', fn, replicas, (err) => {
         if (err) console.log('Error writing function-replicas to redis' + err);
       })
-    }
+    } else { console.log(data); }
   });
   // reconnect automatically when stream ends (should probably cleanup more here)
   jsonStream.on('end', watchDeployments)
