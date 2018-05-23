@@ -10,7 +10,7 @@ spec:
   maxReplicas: 1
   idleTimeoutMs: 3600000
   container:
-    image: projectriff/vote-stream-processor-node:0.2.1
+    image: projectriff/vote-stream-processor-node:0.2.2
     env:
     - name: NODE_DEBUG
       value: riff

@@ -13,7 +13,7 @@ spec:
     spec:
       serviceAccountName: votes-ui
       containers:
-      - image: projectriff/riff-demo-ui:0.2.1
+      - image: projectriff/riff-demo-ui:0.2.2
         name: ui
         imagePullPolicy: IfNotPresent
         env:

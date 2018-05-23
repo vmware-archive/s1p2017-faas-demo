@@ -8,7 +8,7 @@ spec:
   output: counted-votes
   idleTimeoutMs: 5000
   container:
-    image: projectriff/vote-counter:0.2.1
+    image: projectriff/vote-counter:0.2.2
     env:
     - name: NODE_DEBUG
       value: riff

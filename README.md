@@ -68,10 +68,10 @@ with your own docker id in the steps below, and adjust the image names in the ya
 eval $(minikube docker-env)
 
 pushd functions/vote-stream-processor ; ./mvnw -DskipTests clean package ; popd
-riff build -f functions/vote-stream-processor/ -v 0.2.1 -u projectriff
-riff build -f functions/vote-counter/ -v 0.2.1 -u projectriff
-riff build -f functions/redis-writer/ -v 0.2.1 -u projectriff
-docker build -t projectriff/riff-demo-ui:0.2.1 ui
+riff build -f functions/vote-stream-processor/ -v 0.2.2 -u projectriff
+riff build -f functions/vote-counter/ -v 0.2.2 -u projectriff
+riff build -f functions/redis-writer/ -v 0.2.2 -u projectriff
+docker build -t projectriff/riff-demo-ui:0.2.2 ui
 ```
 
 ## tear down

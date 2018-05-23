@@ -1,4 +1,4 @@
-FROM projectriff/java-function-invoker:0.0.6
+FROM projectriff/java-function-invoker:0.0.7
 ARG FUNCTION_JAR=/functions/vote-stream-processor-1.0.0.jar
 ARG FUNCTION_CLASS=functions.VoteStreamProcessor
 ADD target/vote-stream-processor-1.0.0.jar $FUNCTION_JAR
